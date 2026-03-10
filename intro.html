@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>SYSTEM — INITIALIZING</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --cyan: #00d4ff;
+  --cyan2: #4de8ff;
+  --blue: #1a6fff;
+  --gold: #f0b429;
+  --red: #ff2d2d;
+  --green: #00ff88;
+  --white: #e8f4ff;
+  --muted: #3a5a7a;
+  --muted2: #5a7a9a;
+  --mono: 'Share Tech Mono', monospace;
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bot: env(safe-area-inset-bottom, 20px);
+}
+
+html, body {
+  height: 100%; width: 100%;
+  background: #000;
+  color: var(--cyan);
+  font-family: var(--mono);
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 36px 36px;
+  animation: gridpulse 4s ease-in-out infinite;
+}
+@keyframes gridpulse {
+  0%,100% { opacity:0.5 }
+  50% { opacity:1 }
+}
+
+/* Scanlines */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px
+  );
+}
+
+canvas {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+}
+
+/* ── SCREENS ── */
+#app {
+  position: fixed; inset: 0; z-index: 10;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bot);
+}
+
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.screen.active { opacity: 1; pointer-events: all; }
+.screen.fade-out { opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+
+/* ══════════════════════════════
+   SCREEN 1 — BOOT
+══════════════════════════════ */
+#boot {
+  justify-content: flex-end;
+  padding-bottom: calc(var(--safe-bot) + 40px);
+}
+
+.boot-logo {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -55%);
+  text-align: center;
+}
+.boot-rank {
+  font-size: 120px; font-weight: 700; line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(0,212,255,0.2);
+  animation: rank-reveal 1.5s ease forwards;
+  animation-delay: 0.5s;
+}
+@keyframes rank-reveal {
+  0%   { -webkit-text-stroke-color: rgba(0,212,255,0); color: transparent; }
+  50%  { -webkit-text-stroke-color: rgba(0,212,255,0.6); color: transparent; }
+  100% { -webkit-text-stroke-color: rgba(0,212,255,0); color: rgba(0,212,255,0.08); }
+}
+.boot-title {
+  font-size: 11px; letter-spacing: 0.35em; color: var(--muted2);
+  margin-top: 8px; opacity: 0;
+  animation: fadein 0.5s ease forwards;
+  animation-delay: 1.2s;
+}
+@keyframes fadein { to { opacity: 1; } }
+
+.boot-bar-wrap {
+  width: 100%; max-width: 280px;
+  margin-bottom: 16px; opacity: 0;
+  animation: fadein 0.4s ease forwards;
+  animation-delay: 1.6s;
+}
+.boot-bar-label {
+  font-size: 9px; letter-spacing: 0.2em; color: var(--muted);
+  margin-bottom: 6px;
+}
+.boot-bar-track {
+  height: 2px; background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.15);
+  overflow: hidden;
+}
+.boot-bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+  box-shadow: 0 0 8px var(--cyan);
+  animation: fill-bar 2.5s ease forwards;
+  animation-delay: 1.8s;
+}
+@keyframes fill-bar { to { width: 100%; } }
+
+.boot-status {
+  font-size: 10px; color: var(--muted2); letter-spacing: 0.1em;
+  margin-top: 6px; height: 14px;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════
+   SCREEN 2 — TERMINAL
+══════════════════════════════ */
+#terminal {
+  justify-content: flex-start;
+  padding-top: calc(var(--safe-top) + 20px);
+  align-items: flex-start;
+}
+
+.term-lines {
+  width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; gap: 0;
+}
+
+.term-line {
+  font-size: 13px; line-height: 1.8;
+  min-height: 1.8em;
+  white-space: pre-wrap; word-break: break-word;
+}
+.term-line.system  { color: var(--cyan); }
+.term-line.warning { color: var(--gold); }
+.term-line.alert   { color: var(--red); }
+.term-line.success { color: var(--green); }
+.term-line.muted   { color: var(--muted2); }
+.term-line.blank   { min-height: 0.9em; }
+.term-line.big {
+  font-size: 15px; color: var(--white);
+  letter-spacing: 0.05em; font-weight: 700;
+}
+
+.cursor {
+  display: inline-block; width: 8px; height: 14px;
+  background: var(--cyan); vertical-align: text-bottom;
+  animation: cur 0.8s infinite;
+  box-shadow: 0 0 6px var(--cyan);
+}
+@keyframes cur { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ══════════════════════════════
+   SCREEN 3 — DATE SELECTION
+══════════════════════════════ */
+#datescreen {
+  justify-content: center;
+  gap: 0;
+}
+
+.date-panel {
+  width: 100%; max-width: 340px;
+  border: 1px solid rgba(0,212,255,0.3);
+  background: rgba(0,5,20,0.9);
+  position: relative; overflow: hidden;
+}
+.date-panel::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.date-panel::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+}
+
+/* corner brackets */
+.date-panel .corner { position: absolute; width: 10px; height: 10px; }
+.date-panel .corner.tl { top:-1px; left:-1px; border-top:2px solid var(--cyan); border-left:2px solid var(--cyan); }
+.date-panel .corner.tr { top:-1px; right:-1px; border-top:2px solid var(--cyan); border-right:2px solid var(--cyan); }
+.date-panel .corner.bl { bottom:-1px; left:-1px; border-bottom:2px solid var(--cyan); border-left:2px solid var(--cyan); }
+.date-panel .corner.br { bottom:-1px; right:-1px; border-bottom:2px solid var(--cyan); border-right:2px solid var(--cyan); }
+
+.dp-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0,212,255,0.1);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.dp-title { font-size: 10px; letter-spacing: 0.25em; color: var(--cyan); }
+.dp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+
+.dp-body { padding: 20px 16px; }
+
+.dp-question {
+  font-size: 11px; color: var(--muted2); letter-spacing: 0.1em;
+  margin-bottom: 6px; line-height: 1.6;
+}
+.dp-question span { color: var(--white); }
+
+.dp-name-row {
+  display: flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(0,212,255,0.25);
+  background: rgba(0,212,255,0.04);
+  padding: 10px 12px; margin-bottom: 16px;
+}
+.dp-name-label { font-size: 10px; color: var(--muted2); white-space: nowrap; }
+.dp-name-input {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: var(--mono); font-size: 13px; color: var(--white);
+  caret-color: var(--cyan);
+}
+.dp-name-input::placeholder { color: var(--muted); }
+
+.dp-date-label {
+  font-size: 10px; color: var(--muted2); letter-spacing: 0.15em; margin-bottom: 8px;
+}
+
+/* Date selector — 3 scroll wheels */
+.dp-wheels {
+  display: flex; gap: 6px; margin-bottom: 20px;
+  justify-content: center;
+}
+.wheel-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.wheel-label { font-size: 8px; color: var(--muted); letter-spacing: 0.1em; margin-bottom: 4px; }
+
+.wheel {
+  width: 72px; height: 120px;
+  overflow: hidden; position: relative;
+  border: 1px solid rgba(0,212,255,0.2);
+  background: rgba(0,0,0,0.4);
+}
+.wheel::before, .wheel::after {
+  content: ''; position: absolute; left: 0; right: 0; z-index: 2;
+  height: 36px; pointer-events: none;
+}
+.wheel::before { top: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+.wheel::after  { bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+
+.wheel-center-line {
+  position: absolute; top: 50%; left: 0; right: 0; z-index: 1;
+  height: 36px; transform: translateY(-50%);
+  border-top: 1px solid rgba(0,212,255,0.3);
+  border-bottom: 1px solid rgba(0,212,255,0.3);
+  background: rgba(0,212,255,0.05);
+  pointer-events: none;
+}
+
+.wheel-inner {
+  display: flex; flex-direction: column;
+  transition: transform 0.2s cubic-bezier(0.25,0.46,0.45,0.94);
+  cursor: grab;
+}
+.wheel-inner:active { cursor: grabbing; }
+
+.wheel-item {
+  height: 36px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--muted2); flex-shrink: 0;
+  transition: color 0.2s, font-size 0.2s;
+}
+.wheel-item.selected { color: var(--cyan); font-size: 16px; }
+
+/* Selected date display */
+.dp-selected-date {
+  font-size: 12px; color: var(--cyan); text-align: center;
+  letter-spacing: 0.1em; margin-bottom: 6px; min-height: 18px;
+}
+.dp-week-label {
+  font-size: 10px; color: var(--muted2); text-align: center;
+  margin-bottom: 16px; min-height: 14px;
+}
+
+/* Confirm button */
+.dp-confirm {
+  width: 100%;
+  border: 1px solid var(--cyan);
+  background: rgba(0,212,255,0.1);
+  color: var(--cyan2); font-family: var(--mono);
+  font-size: 11px; letter-spacing: 0.2em;
+  padding: 14px; cursor: pointer;
+  position: relative; overflow: hidden;
+  transition: all 0.2s;
+}
+.dp-confirm::before {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.15), transparent);
+  transition: left 0.5s;
+}
+.dp-confirm:active::before { left: 100%; }
+.dp-confirm:active { background: rgba(0,212,255,0.2); transform: scale(0.99); }
+.dp-confirm:disabled { opacity: 0.3; cursor: default; }
+
+/* ══════════════════════════════
+   SCREEN 4 — AWAKENING
+══════════════════════════════ */
+#awakening {
+  text-align: center;
+  gap: 0;
+}
+
+.aw-rank {
+  font-size: 100px; font-weight: 700; color: var(--muted2);
+  line-height: 1; margin-bottom: 12px;
+  animation: aw-rank 2s ease forwards;
+}
+@keyframes aw-rank {
+  0%   { color: var(--muted2); text-shadow: none; }
+  40%  { color: var(--cyan); text-shadow: 0 0 40px var(--cyan), 0 0 80px rgba(0,212,255,0.4); }
+  70%  { color: var(--white); text-shadow: 0 0 60px var(--cyan), 0 0 120px rgba(0,212,255,0.3); }
+  100% { color: var(--cyan2); text-shadow: 0 0 20px var(--cyan); }
+}
+
+.aw-system { font-size: 9px; letter-spacing: 0.35em; color: var(--muted2); margin-bottom: 4px; }
+.aw-title { font-size: 18px; letter-spacing: 0.15em; color: var(--white); margin-bottom: 6px; opacity: 0; animation: fadein 0.5s ease forwards; animation-delay: 1s; }
+.aw-name  { font-size: 13px; letter-spacing: 0.1em; color: var(--cyan); margin-bottom: 24px; opacity: 0; animation: fadein 0.5s ease forwards; animation-delay: 1.3s; }
+
+.aw-stats {
+  border: 1px solid rgba(0,212,255,0.2);
+  background: rgba(0,5,20,0.8);
+  padding: 16px 24px; width: 100%; max-width: 280px;
+  margin-bottom: 24px;
+  opacity: 0; animation: fadein 0.5s ease forwards; animation-delay: 1.8s;
+}
+.aw-stat-row {
+  display: flex; justify-content: space-between;
+  padding: 5px 0; border-bottom: 1px solid rgba(0,212,255,0.07);
+  font-size: 11px;
+}
+.aw-stat-row:last-child { border: none; }
+.aw-stat-k { color: var(--muted2); }
+.aw-stat-v { color: var(--white); }
+
+.aw-enter {
+  border: 1px solid var(--cyan); background: rgba(0,212,255,0.1);
+  color: var(--cyan2); font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.2em; padding: 14px 32px; cursor: pointer;
+  opacity: 0; animation: fadein 0.5s ease forwards; animation-delay: 2.5s;
+  transition: all 0.2s;
+}
+.aw-enter:active { background: rgba(0,212,255,0.25); transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div id="app">
+
+  <!-- SCREEN 1: BOOT -->
+  <div class="screen active" id="boot">
+    <div class="boot-logo">
+      <div class="boot-rank">E</div>
+      <div class="boot-title">ASSASSIN PROTOCOL SYSTEM</div>
+    </div>
+    <div class="boot-bar-wrap">
+      <div class="boot-bar-label">INITIALIZING SYSTEM...</div>
+      <div class="boot-bar-track">
+        <div class="boot-bar-fill"></div>
+      </div>
+      <div class="boot-status" id="bootStatus"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: TERMINAL -->
+  <div class="screen" id="terminal">
+    <div class="term-lines" id="termLines"></div>
+  </div>
+
+  <!-- SCREEN 3: DATE SELECTION -->
+  <div class="screen" id="datescreen">
+    <div class="date-panel">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+
+      <div class="dp-header">
+        <div class="dp-title">HUNTER REGISTRATION</div>
+        <div class="dp-dot"></div>
+      </div>
+
+      <div class="dp-body">
+        <div class="dp-question">
+          <span>Ingresá tu nombre, cazador.</span><br>
+          Quedarás registrado en el sistema.
+        </div>
+        <div class="dp-name-row">
+          <div class="dp-name-label">HUNTER ›</div>
+          <input class="dp-name-input" id="nameInput" type="text" maxlength="20" placeholder="tu nombre..." autocomplete="off" autocorrect="off" spellcheck="false">
+        </div>
+
+        <div class="dp-date-label">FECHA DE INICIO DEL PROTOCOLO</div>
+
+        <div class="dp-wheels">
+          <div class="wheel-wrap">
+            <div class="wheel-label">DÍA</div>
+            <div class="wheel" id="wheelDay">
+              <div class="wheel-center-line"></div>
+              <div class="wheel-inner" id="innerDay"></div>
+            </div>
+          </div>
+          <div class="wheel-wrap">
+            <div class="wheel-label">MES</div>
+            <div class="wheel" id="wheelMonth">
+              <div class="wheel-center-line"></div>
+              <div class="wheel-inner" id="innerMonth"></div>
+            </div>
+          </div>
+          <div class="wheel-wrap">
+            <div class="wheel-label">AÑO</div>
+            <div class="wheel" id="wheelYear">
+              <div class="wheel-center-line"></div>
+              <div class="wheel-inner" id="innerYear"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dp-selected-date" id="selectedDate">—</div>
+        <div class="dp-week-label" id="weekLabel"></div>
+
+        <button class="dp-confirm" id="confirmBtn" onclick="confirmDate()" disabled>
+          [ INICIAR PROTOCOLO ]
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: AWAKENING -->
+  <div class="screen" id="awakening">
+    <div class="aw-system">◈ SYSTEM NOTIFICATION ◈</div>
+    <div class="aw-rank" id="awRank">E</div>
+    <div class="aw-title">AWAKENING DETECTED</div>
+    <div class="aw-name" id="awName">HUNTER DEKU</div>
+    <div class="aw-stats" id="awStats">
+      <div class="aw-stat-row"><span class="aw-stat-k">Rank</span><span class="aw-stat-v">E — APRENDIZ</span></div>
+      <div class="aw-stat-row"><span class="aw-stat-k">Inicio</span><span class="aw-stat-v" id="awDate">—</span></div>
+      <div class="aw-stat-row"><span class="aw-stat-k">Duración</span><span class="aw-stat-v">12 SEMANAS</span></div>
+      <div class="aw-stat-row"><span class="aw-stat-k">Objetivo</span><span class="aw-stat-v">FÍSICO ATLÉTICO</span></div>
+      <div class="aw-stat-row"><span class="aw-stat-k">XP</span><span class="aw-stat-v">0 / 100</span></div>
+    </div>
+    <button class="aw-enter" onclick="enterSystem()">[ ENTER THE SYSTEM ]</button>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  CHECK IF ALREADY ONBOARDED
+// ══════════════════════════════════════
+const OKEY = 'deku_onboarded';
+const SKEY = 'deku_v3';
+
+function alreadyOnboarded() {
+  try { return !!localStorage.getItem(OKEY); } catch(e) { return false; }
+}
+
+// If already onboarded, skip straight to main app
+if (alreadyOnboarded()) {
+  window.location.replace('./index.html');
+}
+
+// ══════════════════════════════════════
+//  PARTICLES
+// ══════════════════════════════════════
+function initParticles() {
+  const c = document.getElementById('particles');
+  const ctx = c.getContext('2d');
+  c.width = window.innerWidth; c.height = window.innerHeight;
+  const pts = Array.from({length:25}, () => ({
+    x: Math.random()*c.width, y: Math.random()*c.height,
+    sz: Math.random()*1.2+0.2,
+    vy: -(Math.random()*0.3+0.06), vx: (Math.random()-0.5)*0.12,
+    a: Math.random()*0.18+0.04,
+    col: Math.random()>0.6?'#00d4ff':Math.random()>0.5?'#1a6fff':'#c8960c'
+  }));
+  (function draw() {
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
+      ctx.fillStyle = p.col; ctx.globalAlpha = p.a; ctx.fill();
+      p.y += p.vy; p.x += p.vx;
+      if (p.y < 0) { p.y = c.height; p.x = Math.random()*c.width; }
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  })();
+}
+initParticles();
+
+// ══════════════════════════════════════
+//  SCREEN TRANSITIONS
+// ══════════════════════════════════════
+function showScreen(id, delay=0) {
+  setTimeout(() => {
+    document.querySelectorAll('.screen').forEach(s => {
+      s.classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+  }, delay);
+}
+
+function hideScreen(id) {
+  const el = document.getElementById(id);
+  el.classList.add('fade-out');
+  setTimeout(() => el.classList.remove('active','fade-out'), 400);
+}
+
+// ══════════════════════════════════════
+//  🔊 SOUND ENGINE
+// ══════════════════════════════════════
+const SFX = (() => {
+  let ctx = null, master = null, enabled = true;
+  function getCtx() {
+    if (!ctx) { ctx = new (window.AudioContext||window.webkitAudioContext)(); master = ctx.createGain(); master.gain.value = 0.7; master.connect(ctx.destination); }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  function osc(type, freq, t, dur, vol, dest) {
+    const c=getCtx(), o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(dest||master); o.start(t); o.stop(t+dur+0.01);
+  }
+  function slide(type, f1, f2, t, dur, vol, dest) {
+    const c=getCtx(), o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.setValueAtTime(f1,t); o.frequency.linearRampToValueAtTime(f2,t+dur);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(dest||master); o.start(t); o.stop(t+dur+0.01);
+  }
+  function noise(t, dur, vol, fc) {
+    const c=getCtx(), buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    const src=c.createBufferSource(), flt=c.createBiquadFilter(), g=c.createGain();
+    flt.type='bandpass'; flt.frequency.value=fc||1000; flt.Q.value=0.5;
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    src.buffer=buf; src.connect(flt); flt.connect(g); g.connect(master); src.start(t); src.stop(t+dur);
+  }
+  function mkReverb(wet) {
+    const c=getCtx(), cv=c.createConvolver(), len=c.sampleRate*1.5, buf=c.createBuffer(2,len,c.sampleRate);
+    for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);}
+    cv.buffer=buf; const g=c.createGain(); g.gain.value=wet; cv.connect(g); g.connect(master); return cv;
+  }
+
+  const sfx = {
+    keyclick() { if(!enabled)return; const c=getCtx(),t=c.currentTime; noise(t,0.035,0.1,3000+Math.random()*1500); osc('square',700+Math.random()*300,t,0.03,0.04); },
+
+    systemBoot() { if(!enabled)return; const c=getCtx(),t=c.currentTime,rv=mkReverb(0.3);
+      slide('sawtooth',40,80,t,2.5,0.12,rv); slide('sine',80,160,t+0.5,2.0,0.08,rv);
+      [0.8,1.2,1.5,1.7,1.85].forEach((dt,i)=>osc('square',440+i*110,t+dt,0.12,0.07));
+      [220,330,440,550].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+2.0);g.gain.linearRampToValueAtTime(0.05,t+2.4);g.gain.exponentialRampToValueAtTime(0.0001,t+3.5);o.connect(g);g.connect(rv);o.start(t+2.0);o.stop(t+3.6);}); },
+
+    termLine() { if(!enabled)return; const c=getCtx(),t=c.currentTime; slide('square',280,560,t,0.06,0.05); osc('sine',1100,t+0.04,0.05,0.03); },
+
+    check() { if(!enabled)return; const c=getCtx(),t=c.currentTime; noise(t,0.02,0.15,5000); osc('square',580,t,0.04,0.08); osc('sine',880,t+0.05,0.15,0.1); osc('sine',1320,t+0.12,0.15,0.08); slide('sine',2000,3000,t+0.05,0.2,0.03); },
+
+    uncheck() { if(!enabled)return; const c=getCtx(),t=c.currentTime; noise(t,0.02,0.1,2000); slide('sine',880,440,t,0.12,0.06); },
+
+    questComplete() { if(!enabled)return; const c=getCtx(),t=c.currentTime,rv=mkReverb(0.5);
+      noise(t,0.3,0.35,200); noise(t,0.5,0.25,80);
+      [130,165,196,261].forEach(f=>{const o=c.createOscillator(),g=c.createGain(),dist=c.createWaveShaper(),curve=new Float32Array(256);for(let i=0;i<256;i++){const x=(i*2/256)-1;curve[i]=(Math.PI+200)*x/(Math.PI+200*Math.abs(x));}dist.curve=curve;o.type='sawtooth';o.frequency.value=f;g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.0001,t+1.2);o.connect(dist);dist.connect(g);g.connect(rv);o.start(t);o.stop(t+1.3);});
+      [{f:523,dt:0},{f:659,dt:0.15},{f:784,dt:0.3},{f:1047,dt:0.5},{f:1319,dt:0.7},{f:1047,dt:0.9}].forEach(({f,dt})=>{osc('sine',f,t+dt,0.25,0.12,rv);osc('triangle',f*2,t+dt,0.15,0.04,rv);});
+      [523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+1.1);g.gain.linearRampToValueAtTime(0.07-i*0.01,t+1.3);g.gain.exponentialRampToValueAtTime(0.0001,t+3.0);o.connect(g);g.connect(rv);o.start(t+1.1);o.stop(t+3.1);});
+      noise(t+1.0,1.5,0.18,8000); },
+
+    penalty() { if(!enabled)return; const c=getCtx(),t=c.currentTime,rv=mkReverb(0.4);
+      slide('sawtooth',55,45,t,2.0,0.18,rv);
+      for(let i=0;i<5;i++){const dt=i*0.22;osc('square',220,t+dt,0.15,0.14);osc('square',440,t+dt+0.08,0.08,0.09);}
+      [110,138,164].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(f,t+1.0);o.frequency.linearRampToValueAtTime(f*0.88,t+2.5);g.gain.setValueAtTime(0,t+1.0);g.gain.linearRampToValueAtTime(0.1,t+1.2);g.gain.exponentialRampToValueAtTime(0.0001,t+2.5);o.connect(g);g.connect(rv);o.start(t+1.0);o.stop(t+2.6);});
+      noise(t,0.1,0.45,400); noise(t+1.0,0.15,0.35,300); },
+
+    rankUp() { if(!enabled)return; const c=getCtx(),t=c.currentTime,rv=mkReverb(0.6);
+      noise(t,0.05,0.5,200); slide('sine',60,30,t,0.8,0.35,rv); noise(t,0.4,0.45,100);
+      slide('sawtooth',100,800,t+0.3,1.5,0.13,rv); slide('sine',200,1600,t+0.5,1.3,0.09,rv);
+      [196,247,294,370,440,554,659,880].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),dt=i*0.11+0.8;o.type=i%2===0?'triangle':'sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+dt);g.gain.linearRampToValueAtTime(0.08,t+dt+0.06);g.gain.exponentialRampToValueAtTime(0.0001,t+dt+0.5);o.connect(g);g.connect(rv);o.start(t+dt);o.stop(t+dt+0.6);});
+      [220,277,330,415,554,830].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type=i<3?'sine':'triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+2.0);g.gain.linearRampToValueAtTime(0.09-i*0.01,t+2.3);g.gain.exponentialRampToValueAtTime(0.0001,t+4.5);o.connect(g);g.connect(rv);o.start(t+2.0);o.stop(t+4.6);});
+      noise(t+2.0,2.5,0.13,10000); slide('sine',4000,8000,t+2.0,0.3,0.04); },
+
+    transition() { if(!enabled)return; const c=getCtx(),t=c.currentTime; slide('sine',200,800,t,0.2,0.07); noise(t,0.15,0.09,4000); },
+
+    confirm() { if(!enabled)return; const c=getCtx(),t=c.currentTime,rv=mkReverb(0.3); [440,554,659,880].forEach((f,i)=>osc('sine',f,t+i*0.08,0.3,0.09,rv)); noise(t+0.32,0.3,0.09,6000); },
+
+    toggle() { enabled=!enabled; if(master)master.gain.value=enabled?0.7:0; return enabled; },
+    isEnabled() { return enabled; },
+  };
+
+  let unlocked=false;
+  function unlock(){if(unlocked)return;unlocked=true;getCtx();}
+  document.addEventListener('touchstart',unlock,{once:true,passive:true});
+  document.addEventListener('click',unlock,{once:true});
+  return sfx;
+})();
+
+// ══════════════════════════════════════
+//  BOOT SEQUENCE
+// ══════════════════════════════════════
+const BOOT_MSGS = [
+  'SYSTEM CORE LOADING...',
+  'HUNTER DATABASE CONNECTING...',
+  'DUNGEON NETWORK ONLINE',
+  'RANK CALIBRATION READY',
+  'SYSTEM INITIALIZED',
+];
+
+function runBoot() {
+  let i = 0;
+  const el = document.getElementById('bootStatus');
+  function next() {
+    if (i >= BOOT_MSGS.length) {
+      setTimeout(() => { SFX.transition(); hideScreen('boot'); runTerminal(); }, 400);
+      return;
+    }
+    el.textContent = BOOT_MSGS[i++];
+    SFX.termLine();
+    setTimeout(next, i === BOOT_MSGS.length ? 800 : 420);
+  }
+  setTimeout(() => { SFX.systemBoot(); next(); }, 2000);
+}
+
+// ══════════════════════════════════════
+//  TERMINAL TYPEWRITER
+// ══════════════════════════════════════
+const LINES = [
+  { text: '',                                    cls: 'blank',   delay: 0   },
+  { text: '> SYSTEM ALERT',                      cls: 'warning', delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 300 },
+  { text: 'A new player has been detected.',     cls: 'system',  delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 200 },
+  { text: 'This is not a coincidence.',          cls: 'muted',   delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 200 },
+  { text: 'The System has chosen you.',          cls: 'big',     delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 400 },
+  { text: '> SCANNING HUNTER...',                cls: 'warning', delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 200 },
+  { text: '  Physical level  :  AVERAGE',        cls: 'muted',   delay: 0   },
+  { text: '  Willpower       :  UNKNOWN',        cls: 'muted',   delay: 0   },
+  { text: '  Potential       :  UNAWAKENED',     cls: 'alert',   delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 400 },
+  { text: '> PROTOCOL ASSIGNED:',                cls: 'warning', delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 200 },
+  { text: '  DEKU × ASSASSIN PROTOCOL',          cls: 'big',     delay: 0   },
+  { text: '  12 weeks. Rank E → S.',             cls: 'system',  delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 400 },
+  { text: 'You cannot refuse.',                  cls: 'alert',   delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 200 },
+  { text: 'But you can choose when to begin.',   cls: 'success', delay: 0   },
+  { text: '',                                    cls: 'blank',   delay: 600 },
+];
+
+const CHAR_SPEED = 28; // ms per character
+
+function runTerminal() {
+  showScreen('terminal');
+  const container = document.getElementById('termLines');
+  container.innerHTML = '';
+
+  let lineIdx = 0;
+  let extraDelay = 0;
+
+  function nextLine() {
+    if (lineIdx >= LINES.length) {
+      // All lines done — transition to date screen
+      setTimeout(() => { SFX.transition(); hideScreen('terminal'); showScreen('datescreen', 300); }, 800);
+      return;
+    }
+
+    const line = LINES[lineIdx++];
+    extraDelay += line.delay;
+
+    const div = document.createElement('div');
+    div.className = `term-line ${line.cls}`;
+    container.appendChild(div);
+
+    // Scroll to bottom
+    container.scrollTop = container.scrollHeight;
+
+    if (!line.text) {
+      // Blank line — add delay and move on
+      setTimeout(nextLine, extraDelay + 80);
+      extraDelay = 0;
+      return;
+    }
+
+    // Typewrite the text
+    let charIdx = 0;
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    div.appendChild(cursor);
+
+    const totalTime = extraDelay + line.text.length * CHAR_SPEED;
+
+    function typeChar() {
+      if (charIdx >= line.text.length) {
+        cursor.remove();
+        SFX.termLine();
+        const gap = 60;
+        setTimeout(nextLine, gap);
+        extraDelay = 0;
+        return;
+      }
+      div.textContent = line.text.slice(0, ++charIdx);
+      div.appendChild(cursor);
+      container.scrollTop = container.scrollHeight;
+      SFX.keyclick();
+      setTimeout(typeChar, CHAR_SPEED + (Math.random() * 10 - 5));
+    }
+
+    setTimeout(typeChar, extraDelay);
+    extraDelay = 0;
+  }
+
+  setTimeout(nextLine, 200);
+}
+
+// ══════════════════════════════════════
+//  WHEEL PICKER
+// ══════════════════════════════════════
+const MONTHS = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+const ITEM_H = 36;
+
+let selectedDay = new Date().getDate();
+let selectedMonth = new Date().getMonth(); // 0-based
+let selectedYear = new Date().getFullYear();
+
+function daysInMonth(m, y) {
+  return new Date(y, m+1, 0).getDate();
+}
+
+function buildWheel(innerId, items, selectedIdx) {
+  const inner = document.getElementById(innerId);
+  inner.innerHTML = '';
+
+  // Padding items for scroll feel
+  const pad = 1;
+  for (let i = 0; i < pad; i++) {
+    const div = document.createElement('div');
+    div.className = 'wheel-item';
+    inner.appendChild(div);
+  }
+  items.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = `wheel-item${i === selectedIdx ? ' selected' : ''}`;
+    div.textContent = typeof item === 'number' ? String(item).padStart(2,'0') : item;
+    inner.appendChild(div);
+  });
+  for (let i = 0; i < pad; i++) {
+    const div = document.createElement('div');
+    div.className = 'wheel-item';
+    inner.appendChild(div);
+  }
+
+  inner.style.transform = `translateY(${-selectedIdx * ITEM_H}px)`;
+}
+
+function setupWheel(wheelId, innerId, items, getSelected, setSelected) {
+  const wheel = document.getElementById(wheelId);
+  const inner = document.getElementById(innerId);
+  let startY = 0, startOffset = 0, currentOffset = 0, isDragging = false;
+
+  function getOffset() {
+    const t = inner.style.transform;
+    const m = t.match(/translateY\((-?\d+\.?\d*)px\)/);
+    return m ? parseFloat(m[1]) : 0;
+  }
+
+  function snapTo(idx) {
+    const clamped = Math.max(0, Math.min(items.length-1, idx));
+    inner.style.transition = 'transform 0.2s cubic-bezier(0.25,0.46,0.45,0.94)';
+    inner.style.transform = `translateY(${-clamped * ITEM_H}px)`;
+    // Update selected
+    inner.querySelectorAll('.wheel-item').forEach((el, i) => {
+      // offset by 1 for padding
+      el.classList.toggle('selected', i-1 === clamped);
+    });
+    setSelected(clamped);
+    updateDateDisplay();
+  }
+
+  function onStart(y) {
+    isDragging = true;
+    startY = y;
+    startOffset = getOffset();
+    inner.style.transition = 'none';
+  }
+
+  function onMove(y) {
+    if (!isDragging) return;
+    const delta = y - startY;
+    currentOffset = startOffset + delta;
+    inner.style.transform = `translateY(${currentOffset}px)`;
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    const rawIdx = Math.round(-currentOffset / ITEM_H);
+    snapTo(rawIdx);
+  }
+
+  // Touch
+  wheel.addEventListener('touchstart', e => onStart(e.touches[0].clientY), {passive:true});
+  wheel.addEventListener('touchmove',  e => { e.preventDefault(); onMove(e.touches[0].clientY); }, {passive:false});
+  wheel.addEventListener('touchend',   () => onEnd());
+
+  // Mouse
+  wheel.addEventListener('mousedown', e => { onStart(e.clientY); e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if(isDragging) onMove(e.clientY); });
+  window.addEventListener('mouseup',   () => { if(isDragging) onEnd(); });
+}
+
+function initWheels() {
+  const today = new Date();
+  selectedDay   = today.getDate();
+  selectedMonth = today.getMonth();
+  selectedYear  = today.getFullYear();
+
+  const years = [selectedYear, selectedYear+1];
+
+  buildWheel('innerDay',   Array.from({length: daysInMonth(selectedMonth, selectedYear)}, (_,i)=>i+1), selectedDay-1);
+  buildWheel('innerMonth', MONTHS, selectedMonth);
+  buildWheel('innerYear',  years, 0);
+
+  setupWheel('wheelDay',   'innerDay',   Array.from({length: daysInMonth(selectedMonth, selectedYear)}, (_,i)=>i+1), ()=>selectedDay-1,   v=>{ selectedDay=v+1; });
+  setupWheel('wheelMonth', 'innerMonth', MONTHS, ()=>selectedMonth, v=>{ selectedMonth=v; rebuildDayWheel(); });
+  setupWheel('wheelYear',  'innerYear',  years,  ()=>0,             v=>{ selectedYear=years[v]; rebuildDayWheel(); });
+
+  updateDateDisplay();
+}
+
+function rebuildDayWheel() {
+  const maxDay = daysInMonth(selectedMonth, selectedYear);
+  if (selectedDay > maxDay) selectedDay = maxDay;
+  const days = Array.from({length: maxDay}, (_,i)=>i+1);
+  buildWheel('innerDay', days, selectedDay-1);
+  setupWheel('wheelDay', 'innerDay', days, ()=>selectedDay-1, v=>{ selectedDay=v+1; updateDateDisplay(); });
+}
+
+const DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+function updateDateDisplay() {
+  const date = new Date(selectedYear, selectedMonth, selectedDay);
+  const dname = DAY_NAMES[date.getDay()];
+  const formatted = `${String(selectedDay).padStart(2,'0')} ${MONTHS[selectedMonth]} ${selectedYear}`;
+  document.getElementById('selectedDate').textContent = formatted;
+  document.getElementById('weekLabel').textContent = `${dname.toUpperCase()} — semana de inicio`;
+
+  const nameVal = document.getElementById('nameInput').value.trim();
+  document.getElementById('confirmBtn').disabled = nameVal.length === 0;
+}
+
+// Name input validation
+document.getElementById('nameInput').addEventListener('input', updateDateDisplay);
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') e.target.blur();
+});
+
+// ══════════════════════════════════════
+//  CONFIRM DATE
+// ══════════════════════════════════════
+function confirmDate() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return;
+
+  const startDate = new Date(selectedYear, selectedMonth, selectedDay);
+  const startStr  = startDate.toISOString().split('T')[0];
+
+  // Save to state
+  const state = {
+    xp:0, streak:0, lastCompleted:null,
+    totalSessions:0, totalExercises:0, totalPenalties:0,
+    startDate: startStr,
+    hunterName: name.toUpperCase(),
+    history:[], todayChecked:{},
+    currentDay:null, sessionDone:false,
+    missionStartTime:null, consecutiveFails:0,
+    activePenalty:null, penaltyDone:false,
+  };
+  try {
+    localStorage.setItem(SKEY, JSON.stringify(state));
+    localStorage.setItem(OKEY, '1');
+  } catch(e){}
+
+  // Show awakening screen
+  document.getElementById('awName').textContent = `HUNTER ${name.toUpperCase()}`;
+  document.getElementById('awDate').textContent = `${String(selectedDay).padStart(2,'0')} ${MONTHS[selectedMonth]} ${selectedYear}`;
+
+  hideScreen('datescreen');
+  SFX.confirm();
+  showScreen('awakening', 300);
+}
+
+// ══════════════════════════════════════
+//  ENTER SYSTEM
+// ══════════════════════════════════════
+function enterSystem() {
+  SFX.transition();
+  document.getElementById('awakening').classList.add('fade-out');
+  setTimeout(() => { window.location.replace('./index.html'); }, 600);
+}
+
+// ══════════════════════════════════════
+//  START
+// ══════════════════════════════════════
+window.addEventListener('load', () => {
+  initWheels();
+  runBoot();
+});
+
+// Play rankUp sound when awakening screen becomes active
+const awakeningObserver = new MutationObserver((mutations) => {
+  mutations.forEach(m => {
+    if (m.target.id === 'awakening' && m.target.classList.contains('active')) {
+      setTimeout(() => SFX.rankUp(), 400);
+    }
+  });
+});
+awakeningObserver.observe(document.getElementById('awakening'), { attributes: true, attributeFilter: ['class'] });
+</script>
+</body>
+</html>
