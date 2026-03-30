@@ -1,2489 +1,877 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<meta name="theme-color" content="#080810"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="FlowEX"/>
-<meta name="description" content="Rastreador de hábitos con sincronización en la nube"/>
-<link rel="manifest" href="manifest.json"/>
-<title>FlowEX</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SYSTEM">
+<meta name="theme-color" content="#000308">
+<title>ASSASSIN PROTOCOL — SYSTEM</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════
-   FLOWEX — DESIGN SYSTEM
-═══════════════════════════════════════ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#07070f;--surface:#0d0d1c;--s2:#131326;--s3:#181830;
-  --b:#1e1e38;--b2:#282848;
-  --a:#7c6dfa;--a2:#fa6d8f;--a3:#6dfac4;--a4:#fac46d;--a5:#60a5fa;
-  --txt:#eeeef5;--m:#7a7a9a;--m2:#4a4a6a;
-  --fd:'Syne',sans-serif;--fb:'DM Mono',monospace;
-  --st:env(safe-area-inset-top,0px);
-  --sb:env(safe-area-inset-bottom,0px);
-  --r:18px;--rs:12px;
-  --shadow:0 8px 32px rgba(0,0,0,.6);
-  --glow:0 0 40px rgba(124,109,250,.15);
+:root {
+  --bg:#000308; --bg2:#010a18; --panel:#020d1f; --panel2:#041528;
+  --blue:#1a6fff; --blue2:#2d8fff; --cyan:#00d4ff; --cyan2:#4de8ff;
+  --gold:#c8960c; --gold2:#f0b429; --red:#ff2d2d; --red2:#ff6b6b;
+  --green:#00ff88; --green2:#00cc6a; --white:#e8f4ff;
+  --muted:#3a5a7a; --muted2:#5a7a9a;
+  --border:rgba(0,212,255,0.15); --border2:rgba(0,212,255,0.3);
+  --glow-c:0 0 12px rgba(0,212,255,0.5); --glow-g:0 0 12px rgba(240,180,41,0.5); --glow-r:0 0 12px rgba(255,45,45,0.5);
+  --safe-top:env(safe-area-inset-top,44px); --safe-bot:env(safe-area-inset-bottom,20px);
+  --mono:'Share Tech Mono',monospace; --orb:'Orbitron',sans-serif; --raj:'Rajdhani',sans-serif;
 }
-body.th-green{--a:#22c55e;--a2:#6dfac4}
-body.th-pink{--a:#f472b6;--a2:#fb923c}
-body.th-cyan{--a:#22d3ee;--a2:#6dfac4}
-body.th-orange{--a:#f97316;--a2:#fac46d}
-body.th-red{--a:#ef4444;--a2:#fac46d}
-body.light{
-  --bg:#f0f0fa;--surface:#fff;--s2:#f5f5fd;--s3:#ebebf8;
-  --b:#ddddf0;--b2:#cccce0;--txt:#111128;--m:#666688;--m2:#9999bb;
-}
-html,body{height:100%;margin:0;-webkit-text-size-adjust:100%;font-size:clamp(14px,1.8vw,18px)}
-body{
-  background:var(--bg);color:var(--txt);font-family:var(--fb);
-  min-height:100vh;
-  overflow:auto;
-  -webkit-user-select:none;user-select:none;
-}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--raj);overflow:hidden;user-select:none;}
+body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:40px 40px;}
+canvas{position:fixed;inset:0;z-index:1;pointer-events:none;}
+#app{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;padding-top:var(--safe-top);padding-bottom:var(--safe-bot);}
 
-/* Mejora responsive general */
-#screen-app, .screen { min-height:100dvh; }
-.auth-wrap { width:min(96vw, 460px); }
-.sh, .page, .pc, .bnav, .topnav, .auth-wrap { box-sizing:border-box; }
+/* ── HEADER ── */
+header{flex-shrink:0;background:linear-gradient(180deg,rgba(0,3,8,0.98) 0%,rgba(1,10,24,0.95) 100%);border-bottom:1px solid var(--border2);padding:10px 16px;position:relative;overflow:hidden;}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--cyan) 30%,var(--blue2) 70%,transparent 100%);opacity:0.6;}
+.sys-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.sys-title{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--cyan);opacity:0.8;}
+.sys-title span{color:var(--muted2);}
+.sys-rank{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.6);border:1px solid var(--border2);padding:4px 12px;}
+.sys-rank-letter{font-family:var(--mono);font-size:18px;font-weight:700;transition:all 0.5s;}
+.r-E{color:var(--muted2);} .r-D{color:#4ade80;text-shadow:0 0 10px #4ade80;} .r-C{color:var(--cyan);text-shadow:var(--glow-c);} .r-B{color:#a78bfa;text-shadow:0 0 10px #a78bfa;} .r-A{color:var(--gold2);text-shadow:var(--glow-g);} .r-S{color:var(--gold2);text-shadow:0 0 20px var(--gold2),0 0 40px rgba(240,180,41,0.4);animation:sp 2s infinite;}
+@keyframes sp{0%,100%{text-shadow:0 0 20px var(--gold2),0 0 40px rgba(240,180,41,0.3)}50%{text-shadow:0 0 30px #ffd,0 0 60px rgba(240,180,41,0.6)}}
+.sys-rank-label{font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:0.1em;}
+.xp-row{display:flex;align-items:center;gap:10px;}
+.xp-label{font-family:var(--mono);font-size:9px;color:var(--muted2);}
+.xp-track{flex:1;height:4px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.12);overflow:hidden;}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 8px var(--cyan);transition:width 0.8s ease;}
+.xp-num{font-family:var(--mono);font-size:9px;color:var(--cyan);white-space:nowrap;}
 
-@supports (height: 100dvh) {
-  #screen-app, .screen { min-height: 100dvh; }
-}
-@supports not (height: 100dvh) {
-  #screen-app, .screen { min-height: 100vh; }
-}
+/* ── WEEK STRIP ── */
+.week-strip{flex-shrink:0;display:flex;gap:4px;padding:7px 12px;overflow-x:auto;scrollbar-width:none;background:rgba(0,0,0,0.4);border-bottom:1px solid rgba(0,212,255,0.07);}
+.week-strip::-webkit-scrollbar{display:none;}
+.day-chip{flex-shrink:0;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 6px;border:1px solid rgba(255,255,255,0.05);background:rgba(0,0,0,0.3);cursor:pointer;transition:all 0.2s;}
+.day-chip.today{border-color:var(--cyan);background:rgba(0,212,255,0.06);box-shadow:0 0 8px rgba(0,212,255,0.15);}
+.day-chip.done{border-color:var(--green2);}
+.day-chip-name{font-family:var(--mono);font-size:8px;color:var(--muted2);}
+.day-chip.today .day-chip-name{color:var(--cyan);}
+.day-chip-icon{font-size:14px;}
+.day-chip-dot{width:4px;height:4px;border-radius:50%;background:var(--muted);}
+.day-chip.done .day-chip-dot{background:var(--green);box-shadow:0 0 4px var(--green);}
 
-/* Mejor asabilidad táctil */
-button, .icon-btn, .fab, .pin-key, .auth-tab, .shbtn, .shbtns, .plan-btn, .nt { touch-action: manipulation; }
-button, .icon-btn, .fab, .pin-key, .auth-tab, .shbtn, .shbtns, .plan-btn, .nt { -webkit-tap-highlight-color: rgba(0,0,0,0.16); }
+/* ── MAIN ── */
+main{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:90px;}
+main::-webkit-scrollbar{display:none;}
+.view{display:none;} .view.active{display:block;animation:fu 0.25s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-/* ════════════════════════════════════════════
-   RESPONSIVE LAYOUT SYSTEM
-   Mobile → Tablet → Desktop (sidebar)
-════════════════════════════════════ */
+/* ── SYSTEM UI PANEL ── */
+.system-ui{margin:12px;border:1px solid var(--border2);background:linear-gradient(160deg,rgba(1,15,35,0.95),rgba(0,5,15,0.98));position:relative;overflow:hidden;}
+.system-ui::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.system-ui::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--blue2),transparent);}
+/* corner brackets */
+.sp{position:relative;}
+.sp::before,.sp::after,.sp .br::before,.sp .br::after{content:'';position:absolute;width:8px;height:8px;}
+.sp::before{top:-1px;left:-1px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+.sp::after{top:-1px;right:-1px;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+.sp .br::before{bottom:-1px;left:-1px;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+.sp .br::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
 
-/* ── APP SHELL: base (mobile) ─────────────── */
-#screen-app{
-  display:flex;
-  flex-direction:column;
-  padding-top:var(--st);
-  padding-bottom:calc(64px + var(--sb));
-  height:100%;
-  overflow:hidden;
-}
+.status-header{padding:10px 14px 8px;border-bottom:1px solid rgba(0,212,255,0.1);display:flex;align-items:center;justify-content:space-between;}
+.status-title{font-family:var(--mono);font-size:11px;letter-spacing:0.25em;color:var(--cyan);}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:var(--glow-c);animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
 
-/* ── TABLET 600px+ ────────────────────────── */
-@media(min-width:600px){
-  .auth-wrap{max-width:440px}
-  .pin-pad{max-width:320px;margin:0 auto 8px}
-  .pin-display{max-width:320px;margin:18px auto 12px}
-  .topnav{padding:14px 28px 10px}
-  .pc{padding:0 28px 24px}
-  /* Nav centered, tabs wider */
-  .bnav{justify-content:center}
-  .bnav .nt{max-width:90px}
-  /* Slightly bigger cards */
-  .sc{min-width:130px}
-  .gs-card{padding:20px 22px}
-  .hr{padding:14px 18px}
-  /* Sheet centered */
-  .sh{max-width:560px;margin-left:auto;margin-right:auto;border-radius:24px;margin-bottom:24px}
-  .shov{align-items:center}
-}
+.status-block{padding:12px 14px;border-bottom:1px solid rgba(0,212,255,0.08);font-family:var(--mono);}
+.sl{display:flex;align-items:baseline;gap:6px;margin-bottom:3px;font-size:12px;}
+.sl-k{color:var(--muted2);min-width:54px;} .sl-s{color:var(--muted);} .sl-v{color:var(--white);font-size:13px;}
+.sl-v.hl{color:var(--cyan);} .sl-v.rv{font-size:16px;}
+.xi{margin-top:6px;height:3px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.1);overflow:hidden;}
+.xif{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 6px var(--cyan);transition:width 0.8s ease;}
 
-/* ── DESKTOP 900px+ — SIDEBAR LAYOUT ─────── */
-@media(min-width:900px){
-  /* App shell becomes a 2-col grid */
-  #screen-app{
-    display:grid!important;
-    grid-template-columns:220px 1fr;
-    grid-template-rows:56px 1fr;
-    padding:0!important;
-    height:100%;
-    overflow:hidden;
-  }
-  /* Topnav spans full width */
-  .topnav{
-    grid-column:1/-1;
-    grid-row:1;
-    padding:0 28px;
-    height:56px;
-  }
-  /* Bottom nav becomes left sidebar */
-  .bnav{
-    grid-column:1;
-    grid-row:2;
-    /* Override fixed positioning */
-    position:relative!important;
-    bottom:auto!important;left:auto!important;right:auto!important;
-    /* Sidebar layout */
-    height:100%;
-    flex-direction:column;
-    align-items:stretch;
-    padding:16px 10px;
-    border-top:none;
-    border-right:1px solid var(--b);
-    background:rgba(7,7,15,.98);
-    overflow-y:auto;
-    justify-content:flex-start;
-    /* Remove height constraint from mobile */
-    padding-top:16px;
-  }
-  /* Nav items become horizontal rows */
-  .bnav .nt{
-    flex-direction:row;
-    justify-content:flex-start;
-    align-items:center;
-    gap:12px;
-    padding:11px 14px;
-    border-radius:10px;
-    max-width:100%;
-    margin-bottom:4px;
-    height:auto;
-  }
-  .bnav .nt .ni{font-size:19px;transform:none!important}
-  .bnav .nt .nl{font-size:13px;font-weight:500;display:block;opacity:1}
-  .bnav .nt.active{background:rgba(124,109,250,.12)}
-  .bnav .nt.active .ni{transform:none!important}
-  /* Content area */
-  .pc{
-    grid-column:2;
-    grid-row:2;
-    padding:24px 36px 32px;
-    overflow-y:auto;
-    height:100%;
-  }
-  /* FAB repositioned for desktop */
-  .fab{
-    position:fixed;
-    bottom:28px;
-    right:32px;
-  }
-  /* Auth stays centered */
-  .auth-wrap{max-width:460px}
-  .pin-pad{max-width:320px;margin:0 auto 8px}
-}
+/* PENALTY BANNER */
+.penalty-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,45,45,0.2);background:rgba(255,45,45,0.04);cursor:pointer;}
+.pb-icon{font-size:16px;} .pb-text{flex:1;font-family:var(--mono);font-size:11px;color:var(--red2);letter-spacing:0.05em;} .pb-arr{font-family:var(--mono);font-size:14px;color:var(--red);}
 
-/* ── LARGE DESKTOP 1200px+ ────────────────── */
-@media(min-width:1200px){
-  #screen-app{grid-template-columns:240px 1fr}
-  .pc{padding:28px 52px 40px;max-width:960px}
-  .bnav{padding:20px 12px}
-  .bnav .nt{padding:13px 16px}
-  .bnav .nt .ni{font-size:20px}
-  .bnav .nt .nl{font-size:14px}
-}
+/* QUEST LIST */
+.quest-block{padding:12px 14px;border-bottom:1px solid rgba(0,212,255,0.08);}
+.quest-header{font-family:var(--mono);font-size:10px;letter-spacing:0.2em;color:var(--cyan);margin-bottom:10px;opacity:0.8;}
+.quest-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:all 0.15s;}
+.quest-item:last-child{border:none;}
+.quest-chk{width:16px;height:16px;border:1px solid var(--muted2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);font-size:10px;color:transparent;transition:all 0.2s;}
+.quest-item.done .quest-chk{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.08);box-shadow:0 0 6px rgba(0,255,136,0.3);}
+.quest-name{flex:1;font-family:var(--mono);font-size:12px;color:var(--white);}
+.quest-item.done .quest-name{color:var(--muted2);text-decoration:line-through;}
+.quest-det{font-family:var(--mono);font-size:10px;color:var(--muted2);}
+.quest-xp{font-family:var(--mono);font-size:10px;color:var(--gold2);}
+.quest-item.done .quest-xp{opacity:0.4;}
+.quest-toggle{font-family:var(--mono);font-size:10px;color:var(--blue2);text-align:center;padding:8px;cursor:pointer;letter-spacing:0.1em;}
 
-/* ── SMALL DEVICES 420px- ─────────────────── */
-@media(max-width:420px){
-  :root{--r:14px;--rs:10px}
-  .topnav{padding:10px 12px 8px}
-  .logo{font-size:20px}
-  .sync-indicator{font-size:9px;padding:3px 6px}
-  .pc{padding:0 10px 14px}
-  .auth-logo{font-size:34px}
-  .auth-tagline{font-size:12px;margin-bottom:30px}
-  .ph2{font-size:20px}
-  .ph-sub{font-size:11px}
-  .sec-title{font-size:13px}
-  .fi,.auth-input,.pin-key,.plan-btn{font-size:13px}
-  .pin-pad{gap:8px}
-  .fp{padding:6px 10px;font-size:10px}
-  .bnav{height:calc(72px + var(--sb));padding-top:5px}
-  .bnav .nt .ni{font-size:20px}
-  .bnav .nt .nl{font-size:9px}
-  .fab{width:48px;height:48px;bottom:70px;right:14px;font-size:24px}
-}
+/* TIMER */
+.timer-block{padding:12px 14px;border-bottom:1px solid rgba(0,212,255,0.08);}
+.timer-row{display:flex;align-items:center;justify-content:space-between;}
+.timer-label{font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:0.15em;}
+.timer-val{font-family:var(--mono);font-size:22px;letter-spacing:0.08em;color:var(--cyan);text-shadow:var(--glow-c);transition:color 0.5s,text-shadow 0.5s;}
+.timer-val.warn{color:var(--gold2);text-shadow:var(--glow-g);}
+.timer-val.danger{color:var(--red);text-shadow:var(--glow-r);animation:flick 0.8s infinite;}
+.timer-val.ok{color:var(--green);text-shadow:0 0 12px rgba(0,255,136,0.5);}
+@keyframes flick{0%,100%{opacity:1}50%{opacity:0.6}}
+.timer-bar{margin-top:6px;height:2px;background:rgba(0,212,255,0.08);overflow:hidden;}
+.timer-bar-fill{height:100%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);transition:width 1s linear,background 0.5s;}
 
-/* ── CREATOR BADGE ────────────────────────── */
-.creator-badge{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 10px;border-radius:20px;
-  background:linear-gradient(135deg,rgba(250,196,109,.2),rgba(250,109,143,.15));
-  border:1px solid rgba(250,196,109,.4);
-  font-size:10px;font-weight:700;letter-spacing:.05em;
-  color:var(--a4);text-transform:uppercase;
-  box-shadow:0 0 12px rgba(250,196,109,.2);
-  animation:creator-pulse 3s ease-in-out infinite;
-  flex-shrink:0;
-}
-@keyframes creator-pulse{
-  0%,100%{box-shadow:0 0 12px rgba(250,196,109,.2)}
-  50%{box-shadow:0 0 22px rgba(250,196,109,.4)}
-}
+/* COMPLETE BTN */
+.complete-row{padding:12px 14px;}
+.complete-btn{width:100%;border:1px solid var(--blue2);background:rgba(26,111,255,0.12);color:var(--cyan2);font-family:var(--mono);font-size:11px;letter-spacing:0.15em;padding:12px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.complete-btn:active{background:rgba(26,111,255,0.25);}
+.complete-btn.done{border-color:var(--green2);color:var(--green);background:rgba(0,255,136,0.08);}
 
-/* ── ADMIN PANEL ──────────────────────────── */
-.admin-header{background:linear-gradient(135deg,rgba(250,196,109,.1),rgba(250,109,143,.08));border:1px solid rgba(250,196,109,.25);border-radius:var(--r);padding:20px;margin-bottom:16px}
-.admin-title{font-family:var(--fd);font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--a4),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
-.admin-sub{font-size:12px;color:var(--m)}
-.user-card{background:var(--surface);border:1px solid var(--b);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;transition:all .2s}
-.user-card-top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.user-avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--a),var(--a2));display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:16px;font-weight:800;color:white;flex-shrink:0}
-.user-info{flex:1}
-.user-name{font-family:var(--fd);font-size:14px;font-weight:700;margin-bottom:2px}
-.user-meta{font-size:11px;color:var(--m)}
-.user-stats-row{display:flex;gap:8px;flex-wrap:wrap}
-.user-stat{flex:1;min-width:60px;background:var(--s2);border-radius:10px;padding:8px 10px;text-align:center}
-.user-stat-val{font-family:var(--fd);font-size:16px;font-weight:800;color:var(--a)}
-.user-stat-lbl{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.05em}
-.global-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.global-stat{background:linear-gradient(135deg,rgba(250,196,109,.1),rgba(250,109,143,.06));border:1px solid rgba(250,196,109,.2);border-radius:14px;padding:14px 10px;text-align:center}
-.global-stat-val{font-family:var(--fd);font-size:24px;font-weight:800;color:var(--a4);margin-bottom:3px}
-.global-stat-lbl{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em}
-.admin-spin{width:24px;height:24px;border-radius:50%;border:3px solid var(--b2);border-top-color:var(--a4);animation:spin .7s linear infinite;margin:0 auto 12px}
-.admin-spin{width:24px;height:24px;border-radius:50%;border:3px solid var(--b2);border-top-color:var(--a4);animation:spin .7s linear infinite;margin:0 auto 12px}
+/* ── DETAIL SECTION ── */
+.detail-section{margin:0 12px 10px;}
+.detail-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(0,0,0,0.4);border:1px solid rgba(0,212,255,0.1);cursor:pointer;font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:0.15em;transition:all 0.2s;}
+.detail-toggle.open{color:var(--cyan);border-color:var(--border2);}
+.toggle-arr{transition:transform 0.3s;} .detail-toggle.open .toggle-arr{transform:rotate(90deg);}
+.detail-body{display:none;border:1px solid rgba(0,212,255,0.1);border-top:none;} .detail-body.open{display:block;}
+.ex-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:all 0.15s;}
+.ex-row:last-child{border:none;}
+.ex-chk{width:14px;height:14px;border:1px solid var(--muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;color:transparent;transition:all 0.2s;}
+.ex-row.done .ex-chk{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.08);}
+.ex-row-name{flex:1;font-family:var(--mono);font-size:11px;color:var(--white);}
+.ex-row.done .ex-row-name{color:var(--muted);text-decoration:line-through;}
+.ex-row-det{font-family:var(--mono);font-size:10px;color:var(--muted2);}
+.ex-row-xp{font-family:var(--mono);font-size:10px;color:var(--gold);}
+.ex-row.done .ex-row-xp{opacity:0.3;}
+.sec-sep{padding:6px 14px;background:rgba(0,212,255,0.04);font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:0.2em;border-bottom:1px solid rgba(0,212,255,0.05);}
 
-/* GRAIN OVERLAY */
-body::after{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");
-}
+/* ── NOTIF PROMPT ── */
+.notif-prompt{margin:12px;border:1px solid rgba(0,212,255,0.2);background:rgba(0,10,30,0.9);padding:12px 14px;display:none;align-items:center;gap:12px;}
+.notif-prompt-text{flex:1;font-family:var(--mono);font-size:10px;color:var(--muted2);line-height:1.5;}
+.notif-prompt-btn{border:1px solid var(--cyan);background:rgba(0,212,255,0.1);color:var(--cyan);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:8px 12px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 
-/* ─── SCREENS ──────────────────────────────── */
-.screen{position:fixed;inset:0;display:none;flex-direction:column;overflow:hidden;background:var(--bg)}
-.screen.active{display:flex}
+/* ── STATS ── */
+.stats-wrap{padding:12px;display:flex;flex-direction:column;gap:10px;}
+.streak-panel{border:1px solid rgba(240,180,41,0.3);background:rgba(1,10,24,0.8);padding:14px;display:flex;align-items:center;gap:16px;}
+.streak-fire{font-size:36px;animation:fl2 1.5s infinite alternate;}
+@keyframes fl2{from{filter:hue-rotate(0deg)brightness(1)}to{filter:hue-rotate(15deg)brightness(1.2)}}
+.streak-n{font-family:var(--mono);font-size:40px;color:var(--gold2);line-height:1;}
+.streak-sub{font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:0.15em;margin-top:2px;}
+.stat-panel{border:1px solid var(--border);background:rgba(1,10,24,0.8);padding:14px;position:relative;}
+.stat-panel::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--cyan);}
+.stat-panel-title{font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:0.2em;margin-bottom:10px;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.stat-item{text-align:center;}
+.stat-num{font-family:var(--mono);font-size:22px;font-weight:700;}
+.stat-lbl{font-family:var(--mono);font-size:8px;color:var(--muted2);letter-spacing:0.1em;margin-top:2px;}
+.rank-prog-panel{border:1px solid var(--border);background:rgba(1,10,24,0.8);padding:14px;}
+.rank-prog-title{font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:0.2em;margin-bottom:14px;}
+.rank-row{display:flex;align-items:center;}
+.rank-node{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.rank-node-c{width:26px;height:26px;border:1px solid var(--muted);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--muted2);background:var(--bg2);transition:all 0.5s;}
+.rank-node.done .rank-node-c{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,0.1);}
+.rank-node.curr .rank-node-c{border-color:var(--gold2);color:var(--gold2);background:rgba(240,180,41,0.1);box-shadow:var(--glow-g);animation:sp 2s infinite;}
+.rank-node-lbl{font-family:var(--mono);font-size:7px;color:var(--muted);}
+.rank-node.done .rank-node-lbl,.rank-node.curr .rank-node-lbl{color:var(--cyan);}
+.rank-line{flex:1;height:1px;background:var(--muted);margin:0 2px;margin-bottom:14px;transition:all 0.5s;}
+.rank-line.done{background:var(--cyan);box-shadow:var(--glow-c);}
+.hist-item{border-bottom:1px solid rgba(0,212,255,0.06);padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.hist-icon{font-size:18px;}
+.hist-info{flex:1;}
+.hist-day{font-family:var(--mono);font-size:11px;}
+.hist-date{font-family:var(--mono);font-size:9px;color:var(--muted2);margin-top:2px;}
+.hist-xp{font-family:var(--mono);font-size:11px;color:var(--gold);}
 
-/* ─── AUTH SCREEN ──────────────────────────── */
-#screen-auth{
-  align-items:center;justify-content:center;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,109,250,.18) 0%, transparent 70%),var(--bg);
-}
-.auth-orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;animation:orb-float 10s ease-in-out infinite}
-.auth-orb-1{width:400px;height:400px;background:rgba(124,109,250,.12);top:-100px;left:-80px}
-.auth-orb-2{width:300px;height:300px;background:rgba(250,109,143,.09);bottom:50px;right:-80px;animation-delay:-4s}
-.auth-orb-3{width:250px;height:250px;background:rgba(109,250,196,.07);bottom:-50px;left:20%;animation-delay:-7s}
-@keyframes orb-float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(16px,-16px) scale(1.05)}}
+/* ── PROFILE ── */
+.profile-wrap{padding:12px;display:flex;flex-direction:column;gap:10px;}
+.profile-hero{border:1px solid var(--border2);background:rgba(1,10,24,0.9);padding:20px 14px;text-align:center;position:relative;overflow:hidden;}
+.profile-hero::before{content:'';position:absolute;top:50%;left:50%;width:200%;height:200%;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(0,212,255,0.05) 0%,transparent 60%);animation:rot 20s linear infinite;}
+@keyframes rot{from{transform:translate(-50%,-50%)rotate(0)}to{transform:translate(-50%,-50%)rotate(360deg)}}
+.prof-rank-big{font-family:var(--mono);font-size:60px;font-weight:700;margin-bottom:4px;transition:all 0.5s;}
+.prof-name{font-family:var(--mono);font-size:14px;letter-spacing:0.2em;color:var(--muted2);margin-bottom:4px;}
+.prof-rank-name{font-family:var(--mono);font-size:11px;}
+.info-panel{border:1px solid var(--border);background:rgba(1,10,24,0.8);}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid rgba(0,212,255,0.05);font-family:var(--mono);}
+.info-row:last-child{border:none;}
+.irk{font-size:10px;color:var(--muted2);} .irv{font-size:11px;color:var(--white);}
+.notif-panel{border:1px solid rgba(0,212,255,0.2);background:rgba(1,10,24,0.8);}
+.notif-ph{padding:10px 14px;border-bottom:1px solid rgba(0,212,255,0.1);font-family:var(--mono);font-size:9px;color:var(--cyan);letter-spacing:0.2em;}
+.notif-row{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.notif-desc{font-family:var(--mono);font-size:10px;color:var(--muted2);flex:1;line-height:1.5;}
+.notif-btn{border:1px solid var(--cyan);background:rgba(0,212,255,0.1);color:var(--cyan);font-family:var(--mono);font-size:9px;letter-spacing:0.1em;padding:6px 12px;cursor:pointer;white-space:nowrap;}
+.notif-btn.on{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.08);}
+.reset-btn{border:1px solid rgba(255,45,45,0.3);background:rgba(255,45,45,0.06);color:var(--red2);font-family:var(--mono);font-size:10px;letter-spacing:0.1em;padding:13px;cursor:pointer;width:100%;}
 
-.auth-wrap{
-  width:100%;max-width:360px;padding:0 28px;
-  display:flex;flex-direction:column;align-items:center;
-  position:relative;z-index:1;
-}
-.auth-logo{
-  font-family:var(--fd);font-size:42px;font-weight:800;
-  letter-spacing:-2px;margin-bottom:6px;
-  background:linear-gradient(135deg,var(--txt),var(--a));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.auth-logo span{color:var(--a);-webkit-text-fill-color:var(--a)}
-.auth-tagline{font-size:13px;color:var(--m);margin-bottom:40px;text-align:center;line-height:1.6}
+/* ── NAV ── */
+nav{flex-shrink:0;background:rgba(0,3,8,0.98);border-top:1px solid var(--border2);display:flex;padding:4px 0 calc(var(--safe-bot) - 14px);backdrop-filter:blur(20px);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 4px;border:none;border-top:2px solid transparent;background:none;cursor:pointer;transition:all 0.2s;}
+.nav-btn.active{border-top-color:var(--cyan);}
+.nav-icon{font-size:18px;}
+.nav-label{font-family:var(--mono);font-size:8px;color:var(--muted2);letter-spacing:0.15em;}
+.nav-btn.active .nav-label{color:var(--cyan);}
 
-/* Auth tabs */
-.auth-tabs{display:flex;gap:0;background:var(--s2);border-radius:14px;padding:4px;margin-bottom:28px;width:100%;border:1px solid var(--b)}
-.auth-tab{flex:1;padding:10px;border-radius:10px;border:none;background:transparent;color:var(--m);font-family:var(--fd);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
-.auth-tab.active{background:var(--a);color:white;box-shadow:0 4px 16px rgba(124,109,250,.3)}
+/* ── OVERLAYS ── */
+#overlay{position:fixed;inset:0;z-index:9000;background:rgba(0,3,8,0.97);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;}
+#overlay.show{display:flex;animation:fu 0.3s;}
+.ov-sys{font-family:var(--mono);font-size:9px;color:var(--cyan);letter-spacing:0.3em;margin-bottom:6px;}
+.ov-rank{font-family:var(--mono);font-size:90px;font-weight:700;line-height:1;margin-bottom:8px;}
+.ov-title{font-family:var(--mono);font-size:16px;letter-spacing:0.15em;margin-bottom:6px;}
+.ov-sub{font-family:var(--mono);font-size:11px;color:var(--muted2);margin-bottom:16px;}
+.ov-xp{font-family:var(--mono);font-size:24px;color:var(--gold2);letter-spacing:0.1em;margin-bottom:6px;}
+.ov-streak{font-family:var(--mono);font-size:11px;color:var(--green);margin-bottom:24px;}
+.ov-btn{border:1px solid var(--cyan);background:rgba(0,212,255,0.1);color:var(--cyan2);font-family:var(--mono);font-size:11px;letter-spacing:0.2em;padding:13px 32px;cursor:pointer;}
 
-.auth-form{width:100%;display:flex;flex-direction:column;gap:0}
-.auth-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--m);margin-bottom:6px;margin-top:14px}
-.auth-input{
-  width:100%;padding:14px 16px;background:var(--s2);border:1.5px solid var(--b2);
-  border-radius:var(--rs);color:var(--txt);font-family:var(--fb);font-size:15px;
-  outline:none;transition:all .2s;
-}
-.auth-input::placeholder{color:var(--m2)}
-.auth-input:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(124,109,250,.12),var(--glow)}
+#penaltyOverlay{position:fixed;inset:0;z-index:9500;background:rgba(0,3,8,0.98);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
+#penaltyOverlay.show{display:flex;animation:fu 0.3s;}
+.po-warn{font-family:var(--mono);font-size:9px;color:var(--red);letter-spacing:0.3em;margin-bottom:4px;animation:blink 1s infinite;}
+.po-skull{font-size:56px;margin-bottom:8px;}
+.po-title{font-family:var(--mono);font-size:18px;letter-spacing:0.15em;color:var(--red);text-shadow:var(--glow-r);margin-bottom:4px;}
+.po-sub{font-family:var(--mono);font-size:10px;color:var(--muted2);margin-bottom:20px;}
+.po-card{border:1px solid rgba(255,45,45,0.4);background:rgba(255,45,45,0.05);padding:16px 20px;width:100%;max-width:320px;margin-bottom:16px;text-align:left;}
+.po-card-title{font-family:var(--mono);font-size:8px;color:rgba(255,45,45,0.5);letter-spacing:0.3em;margin-bottom:10px;}
+.po-ex{font-family:var(--mono);font-size:16px;color:var(--red2);margin-bottom:4px;}
+.po-det{font-family:var(--mono);font-size:10px;color:var(--muted2);margin-bottom:8px;}
+.po-or{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:0.2em;margin:8px 0;}
+.po-alt{font-family:var(--mono);font-size:12px;color:var(--white);}
+.po-consec{font-family:var(--mono);font-size:10px;color:var(--gold);margin-bottom:14px;}
+.po-btns{display:flex;gap:8px;width:100%;max-width:320px;}
+.po-accept{flex:1;border:1px solid rgba(255,45,45,0.5);background:rgba(255,45,45,0.1);color:var(--red2);font-family:var(--mono);font-size:10px;letter-spacing:0.1em;padding:12px;cursor:pointer;}
+.po-done{flex:1;border:1px solid var(--green2);background:rgba(0,255,136,0.08);color:var(--green);font-family:var(--mono);font-size:10px;letter-spacing:0.1em;padding:12px;cursor:pointer;}
 
-/* PIN pad */
-.pin-display{
-  display:flex;gap:12px;justify-content:center;margin:18px 0 12px;
-}
-.pin-dot{
-  width:14px;height:14px;border-radius:50%;border:2px solid var(--b2);
-  transition:all .2s;
-}
-.pin-dot.filled{background:var(--a);border-color:var(--a);transform:scale(1.2)}
+/* ── TOAST ── */
+.toast{position:fixed;top:calc(var(--safe-top)+8px);left:12px;right:12px;z-index:8000;border:1px solid var(--border2);background:rgba(1,10,24,0.97);padding:10px 14px;display:none;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;animation:sd 0.3s;backdrop-filter:blur(10px);}
+.toast.show{display:flex;}
+@keyframes sd{from{transform:translateY(-16px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px}
-.pin-key{
-  aspect-ratio:1.4;border-radius:14px;border:1px solid var(--b);
-  background:var(--s2);color:var(--txt);font-family:var(--fd);font-size:20px;font-weight:700;
-  cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;
-}
-.pin-key:active{transform:scale(.88);background:var(--b2)}
-.pin-key.del{font-size:18px;color:var(--m)}
-.pin-key.zero{grid-column:2}
+/* REST DAY */
+.rest-block{padding:24px 14px;text-align:center;}
+.rest-icon{font-size:48px;margin-bottom:10px;}
+.rest-title{font-family:var(--mono);font-size:12px;color:var(--cyan);letter-spacing:0.2em;margin-bottom:6px;}
+.rest-sub{font-family:var(--mono);font-size:10px;color:var(--muted2);}
 
-.auth-btn{
-  width:100%;padding:15px;border-radius:var(--r);border:none;
-  background:linear-gradient(135deg,var(--a),var(--a2));
-  color:white;font-family:var(--fd);font-size:16px;font-weight:700;
-  cursor:pointer;margin-top:20px;transition:all .2s;
-  box-shadow:0 4px 24px rgba(124,109,250,.35);
-}
-.auth-btn:active{transform:scale(.97);opacity:.9}
-.auth-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.auth-err{font-size:12px;color:var(--a2);text-align:center;margin-top:10px;min-height:18px;transition:all .2s}
-.auth-hint{font-size:11px;color:var(--m);text-align:center;margin-top:10px;line-height:1.6}
-
-/* Username validation */
-.uname-row{position:relative}
-.uname-check{
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  font-size:16px;transition:all .2s;
-}
-
-
-.topnav{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 18px 8px;flex-shrink:0;
-  background:rgba(7,7,15,.85);backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,.04);
-}
-.logo{font-family:var(--fd);font-size:22px;font-weight:800;letter-spacing:-.5px}
-.logo em{color:var(--a);font-style:normal}
-.sync-indicator{
-  display:flex;align-items:center;gap:5px;font-size:10px;color:var(--m);
-  padding:4px 8px;border-radius:20px;background:var(--s2);border:1px solid var(--b);
-}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--m2);transition:background .3s}
-.sync-dot.synced{background:var(--a3);box-shadow:0 0 6px var(--a3)}
-.sync-dot.syncing{background:var(--a4);animation:pulse-dot 1s infinite}
-.sync-dot.error{background:var(--a2)}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
-
-.icon-btn{
-  width:38px;height:38px;border-radius:10px;background:var(--surface);
-  border:1px solid var(--b);color:var(--m);font-size:16px;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;
-}
-.icon-btn:active{transform:scale(.9);background:var(--s2)}
-
-.pc{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 16px 20px;scrollbar-width:none}
-.pc::-webkit-scrollbar{display:none}
-.page{display:none;animation:pg-in .32s ease both}
-.page.active{display:block}
-@keyframes pg-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-/* ─── BOTTOM NAV ───────────────────────────── */
-.bnav{
-  position:fixed;bottom:0;left:0;right:0;
-  height:calc(64px + var(--sb));
-  background:rgba(7,7,15,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border-top:1px solid rgba(255,255,255,.06);
-  display:flex;align-items:flex-start;padding-top:8px;z-index:100;
-}
-.nt{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;border:none;background:none;color:var(--m);transition:color .2s;position:relative}
-.nt .ni{font-size:22px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
-.nt .nl{font-family:var(--fb);font-size:10px;transition:color .2s}
-.nt.active .ni{transform:translateY(-3px) scale(1.1)}
-.nt.active{color:var(--a)}
-.nt:active .ni{transform:scale(.85)}
-
-.fab{
-  position:fixed;bottom:calc(76px + var(--sb));right:18px;
-  width:52px;height:52px;border-radius:16px;
-  background:linear-gradient(135deg,var(--a),var(--a2));
-  color:white;font-size:26px;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 4px 20px rgba(124,109,250,.45);z-index:90;transition:all .2s;
-}
-.fab:active{transform:scale(.88)}
-.fab:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(124,109,250,.55)}
-
-/* ─── COMPONENTS ───────────────────────────── */
-.ph2{font-family:var(--fd);font-size:24px;font-weight:800;letter-spacing:-.5px;padding:8px 0 4px}
-.ph-sub{font-size:12px;color:var(--m);margin-bottom:14px;line-height:1.6}
-.sec-head{display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px}
-.sec-title{font-family:var(--fd);font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
-.sec-more{font-size:11px;color:var(--a);background:none;border:none;cursor:pointer;font-family:var(--fb)}
-
-.fi{
-  width:100%;padding:12px 15px;margin-bottom:12px;
-  background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);
-  color:var(--txt);font-family:var(--fb);font-size:14px;outline:none;transition:border-color .2s;
-}
-.fi:focus{border-color:var(--a)}
-select.fi option{background:var(--s2)}
-
-/* STAT CARDS */
-.sc{
-  flex-shrink:0;min-width:110px;background:var(--surface);border:1px solid var(--b);
-  border-radius:var(--r);padding:14px;position:relative;overflow:hidden;
-}
-.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
-.sc.c1::after{background:var(--a)}.sc.c2::after{background:var(--a3)}.sc.c3::after{background:var(--a2)}.sc.c4::after{background:var(--a4)}
-.sc .si{font-size:18px;margin-bottom:8px}
-.sc .sv{font-family:var(--fd);font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}
-.sv.c1{color:var(--a)}.sv.c2{color:var(--a3)}.sv.c3{color:var(--a2)}.sv.c4{color:var(--a4)}
-.sc .sl{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.06em}
-
-/* HABIT ROWS */
-.hr{
-  background:var(--surface);border:1px solid var(--b);border-radius:var(--rs);
-  padding:13px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;
-  transition:all .2s;
-}
-.hr:active{transform:scale(.99);background:var(--s2)}
-.hem{font-size:22px;flex-shrink:0;width:32px;text-align:center}
-.hinfo{flex:1;min-width:0}
-.hnm{font-size:13px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hsub{font-size:10px;color:var(--m);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hwk{display:flex;gap:3px}
-.hd{
-  width:24px;height:24px;border-radius:6px;border:1px solid var(--b2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;cursor:pointer;transition:all .15s;color:var(--m2);font-weight:700;
-}
-.hd.done{background:var(--a3);border-color:var(--a3);color:#07070f;font-size:12px}
-.hd.today{border-color:var(--a);color:var(--a)}
-.hd:active{transform:scale(.78)}
-.hstr-wrap{text-align:center;min-width:34px;flex-shrink:0}
-.hstr{font-size:13px;color:var(--a4);font-weight:700}
-.hstr-lbl{font-size:9px;color:var(--m)}
-
-/* PROGRESS RING */
-.prw{
-  background:var(--surface);border:1px solid var(--b);border-radius:var(--r);
-  padding:18px;display:flex;align-items:center;gap:18px;margin-bottom:10px;
-}
-.rb{position:relative;width:72px;height:72px;flex-shrink:0}
-.rb svg{transform:rotate(-90deg)}
-.rt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:16px;font-weight:800;color:var(--a)}
-.ri .rti{font-family:var(--fd);font-size:15px;font-weight:700;margin-bottom:4px}
-.ri .rts{font-size:12px;color:var(--m);line-height:1.6}
-
-/* FLOW SCORE */
-.gs-card{
-  background:linear-gradient(135deg,rgba(124,109,250,.1),rgba(250,109,143,.06));
-  border:1px solid rgba(124,109,250,.2);border-radius:var(--r);
-  padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;
-  transition:all .2s;
-}
-.gs-card:active{transform:scale(.99)}
-.gs-avatar{font-size:40px;line-height:1}
-.gs-info{flex:1}
-.gs-name{font-family:var(--fd);font-size:12px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
-.gs-score{font-family:var(--fd);font-size:30px;font-weight:800;color:var(--a);line-height:1;margin-bottom:3px}
-.gs-level{font-size:11px;color:var(--m);margin-bottom:7px}
-.gs-bar{background:var(--s2);border-radius:4px;height:4px;overflow:hidden}
-.gs-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));border-radius:4px;transition:width .6s ease}
-.gs-xp{font-size:10px;color:var(--m);margin-top:4px}
-
-/* FILTERS */
-.frow{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:0 16px 12px;scrollbar-width:none}
-.frow::-webkit-scrollbar{display:none}
-.fp{flex-shrink:0;padding:7px 14px;border-radius:20px;border:1px solid var(--b);background:transparent;color:var(--m);font-family:var(--fb);font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.fp.active{background:rgba(124,109,250,.12);border-color:var(--a);color:var(--a)}
-.fp:active{transform:scale(.94)}
-
-/* SHEET */
-.shov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:flex-end}
-.shov.open{display:flex}
-.sh{
-  width:100%;background:var(--surface);border-radius:24px 24px 0 0;
-  padding:18px 18px calc(24px + var(--sb));
-  border:1px solid var(--b);border-bottom:none;
-  animation:sh-up .33s cubic-bezier(.34,1.1,.64,1);
-  max-height:92vh;overflow-y:auto;
-}
-@keyframes sh-up{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.shh{width:40px;height:4px;border-radius:2px;background:var(--b2);margin:0 auto 18px}
-.sht{font-family:var(--fd);font-size:18px;font-weight:700;margin-bottom:18px}
-.fl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--m);margin-bottom:5px}
-.fr{display:flex;gap:10px}.fr>div{flex:1}
-.shbtn{
-  width:100%;padding:14px;border-radius:var(--rs);border:none;
-  background:linear-gradient(135deg,var(--a),var(--a2));
-  color:white;font-family:var(--fd);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;
-}
-.shbtn:active{transform:scale(.98);opacity:.9}
-.shbtns{width:100%;padding:12px;border-radius:var(--rs);border:1px solid var(--b);background:transparent;color:var(--m);font-family:var(--fb);font-size:13px;cursor:pointer;margin-top:8px;transition:all .2s}
-.shbtns:active{background:var(--s2)}
-.del-btn{width:100%;padding:12px;border-radius:var(--rs);border:1px solid rgba(250,109,143,.3);background:rgba(250,109,143,.08);color:var(--a2);font-family:var(--fb);font-size:13px;cursor:pointer;margin-top:8px}
-
-/* TOAST */
-#tc{position:fixed;bottom:calc(76px + var(--sb));left:14px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
-.toast{padding:11px 14px;border-radius:12px;background:var(--s2);border:1px solid;font-size:13px;box-shadow:var(--shadow);animation:ts .32s cubic-bezier(.34,1.2,.64,1);display:flex;align-items:center;gap:8px}
-@keyframes ts{from{opacity:0;transform:translateY(18px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
-
-/* CONFETTI */
-.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:8999}
-.cf{position:absolute;width:7px;height:7px;border-radius:2px;animation:cf-fall 1.3s ease-in both}
-@keyframes cf-fall{from{transform:translateY(-10px) rotate(0deg);opacity:1}to{transform:translateY(100vh) rotate(720deg);opacity:0}}
-
-/* STATS */
-.stat-card{background:var(--surface);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:10px}
-.bar-chart{display:flex;align-items:flex-end;gap:5px;height:80px}
-.bar-w{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
-.bar{width:100%;border-radius:4px 4px 0 0;background:linear-gradient(0deg,var(--a),var(--a2));min-height:3px;transition:height .6s ease}
-.bar-lbl{font-size:9px;color:var(--m)}
-.bar-val{font-size:10px;color:var(--m);font-family:var(--fd);font-weight:700}
-.hs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-.hs-cell{background:var(--surface);border:1px solid var(--b);border-radius:14px;padding:14px 10px;text-align:center}
-.hs-val{font-family:var(--fd);font-size:22px;font-weight:800;color:var(--a);margin-bottom:3px}
-.hs-lbl{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em}
-.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.hm{aspect-ratio:1;border-radius:4px;background:var(--b);transition:all .2s;cursor:default}
-.hm.d1{background:rgba(109,250,196,.25)}.hm.d2{background:rgba(109,250,196,.5)}.hm.d3{background:rgba(109,250,196,.75)}.hm.d4{background:#6dfac4}
-.streak-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:rgba(250,196,109,.1);border:1px solid rgba(250,196,109,.2);font-size:11px;font-weight:700;color:var(--a4)}
-
-/* QUICK ADD */
-.qbar{background:linear-gradient(135deg,rgba(124,109,250,.07),rgba(109,250,196,.04));border:1.5px solid var(--b);border-radius:var(--r);padding:11px 14px;margin-bottom:12px;display:flex;gap:8px;align-items:center}
-.qinp{flex:1;border:none;background:transparent;padding:0;font-size:13px;color:var(--txt);font-family:var(--fb);outline:none}
-.qinp::placeholder{color:var(--m)}
-
-/* IA */
-.iacw{display:flex;flex-direction:column;height:calc(100dvh - 220px);overflow:hidden}
-.iams{flex:1;overflow-y:auto;padding:4px 0;display:flex;flex-direction:column;gap:10px;scrollbar-width:none}
-.iams::-webkit-scrollbar{display:none}
-.iam{display:flex;gap:8px;align-items:flex-end;animation:im-in .3s cubic-bezier(.34,1.2,.64,1) both}
-@keyframes im-in{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
-.iam.user{flex-direction:row-reverse}
-.iamav{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--a2));display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.iam.user .iamav{background:var(--s2)}
-.iabub{max-width:80%;padding:11px 13px;border-radius:14px;font-size:13px;line-height:1.65;border:1px solid var(--b)}
-.iam.bot .iabub{background:var(--surface);border-radius:4px 14px 14px 14px}
-.iam.user .iabub{background:rgba(124,109,250,.12);border-color:rgba(124,109,250,.2);border-radius:14px 4px 14px 14px}
-.iaqrs{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 6px}
-.iaqr{padding:7px 12px;border-radius:16px;border:1px solid var(--b);background:transparent;color:var(--txt);font-family:var(--fb);font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.iaqr:active{transform:scale(.93);border-color:var(--a);color:var(--a)}
-.iaib{display:flex;gap:8px;padding:8px 0 4px;border-top:1px solid var(--b);align-items:flex-end}
-.iainp{flex:1;background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:10px 13px;color:var(--txt);font-family:var(--fb);font-size:13px;outline:none;resize:none;max-height:80px;line-height:1.5}
-.iainp:focus{border-color:var(--a)}
-.iasnd{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--a),var(--a2));border:none;color:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-.iasnd:active{transform:scale(.88)}
-.tdots{display:flex;gap:4px;padding:10px 14px;align-items:center}
-.tdots span{width:7px;height:7px;border-radius:50%;background:var(--a);animation:td 1.2s ease-in-out infinite}
-.tdots span:nth-child(2){animation-delay:.2s;background:var(--a2)}.tdots span:nth-child(3){animation-delay:.4s;background:var(--a3)}
-@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
-
-/* SETTINGS */
-.ss-group{background:var(--surface);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
-.ss-item{display:flex;align-items:center;padding:13px 15px;border-bottom:1px solid var(--b);cursor:pointer;transition:background .2s}
-.ss-item:last-child{border-bottom:none}
-.ss-item:active{background:var(--s2)}
-.ss-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-right:11px}
-.ss-inf{flex:1}.ss-lb{font-size:13px;margin-bottom:2px}.ss-ds{font-size:11px;color:var(--m)}.ss-arr{font-size:16px;color:var(--m2)}
-.tgl{width:44px;height:24px;border-radius:12px;background:var(--b2);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
-.tgl::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s}
-.tgl.on{background:var(--a)}.tgl.on::after{transform:translateX(20px)}
-.tp-row{display:flex;gap:10px;padding:14px 15px;overflow-x:auto;scrollbar-width:none}
-.tp-row::-webkit-scrollbar{display:none}
-.tpi{flex-shrink:0;width:44px;height:44px;border-radius:14px;border:2px solid transparent;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
-.tpi.sel{border-color:var(--txt);transform:scale(1.1)}.tpi:active{transform:scale(.9)}
-.tpin{width:28px;height:28px;border-radius:8px}
-
-/* EMPTY */
-.empty{text-align:center;padding:40px 20px}
-.ei{font-size:46px;margin-bottom:14px}.et{font-family:var(--fd);font-size:18px;font-weight:700;margin-bottom:8px}.ed{font-size:13px;color:var(--m);line-height:1.6}
-
-/* STAGGER */
-.stg>*{animation:sla .38s ease both}
-.stg>*:nth-child(1){animation-delay:.04s}.stg>*:nth-child(2){animation-delay:.08s}
-.stg>*:nth-child(3){animation-delay:.12s}.stg>*:nth-child(4){animation-delay:.16s}
-.stg>*:nth-child(5){animation-delay:.20s}.stg>*:nth-child(6){animation-delay:.24s}
-@keyframes sla{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* LOADING SPLASH */
-#splash{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .4s}
-#splash.hide{opacity:0;pointer-events:none}
-.splash-logo{font-family:var(--fd);font-size:52px;font-weight:800;letter-spacing:-3px;animation:splash-in .6s cubic-bezier(.34,1.56,.64,1) both}
-@keyframes splash-in{from{transform:scale(.4) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
-.splash-sub{font-size:13px;color:var(--m);animation:sla .6s .3s ease both}
-.splash-spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--b2);border-top-color:var(--a);animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* PLAN BTN */
-.plan-btn{width:100%;padding:13px;border-radius:var(--rs);background:linear-gradient(135deg,var(--a),var(--a2));border:none;color:white;font-family:var(--fd);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.plan-btn:active{transform:scale(.98);opacity:.9}
-
-/* TAREAS */
-.task-row{background:var(--surface);border:1px solid var(--b);border-radius:var(--rs);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;margin-bottom:7px;transition:all .2s;cursor:pointer}
-.task-row:active{transform:scale(.99);background:var(--s2)}
-.task-row.done-task{opacity:.5}
-.task-chk{width:22px;height:22px;border-radius:6px;border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;cursor:pointer;font-size:11px;margin-top:1px}
-.task-chk.done{background:var(--a3);border-color:var(--a3);color:#07070f}
-.task-body{flex:1;min-width:0}
-.task-title{font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.task-title.done{text-decoration:line-through;color:var(--m)}
-.task-meta-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.task-tag{padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600}
-.tag-work{background:rgba(124,109,250,.12);color:var(--a)}
-.tag-personal{background:rgba(109,250,196,.12);color:var(--a3)}
-.tag-health{background:rgba(250,109,143,.12);color:var(--a2)}
-.tag-learn{background:rgba(250,196,109,.12);color:var(--a4)}
-.task-date{font-size:10px;color:var(--m2)}
-.task-date.overdue{color:var(--a2)}
-.task-pri{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px}
-.pri-high{background:var(--a2)}.pri-mid{background:var(--a4)}.pri-low{background:var(--a3)}
-.task-actions{display:flex;gap:4px;flex-shrink:0}
-.task-act-btn{width:26px;height:26px;border-radius:7px;background:var(--s2);border:1px solid var(--b);font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
-.task-act-btn:active{transform:scale(.88)}
-.tasks-empty{text-align:center;padding:36px 20px}
-.subtask-list-view{margin-top:6px;display:flex;flex-direction:column;gap:3px}
-.subtask-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--m)}
-.subtask-chk{width:14px;height:14px;border-radius:3px;border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:8px;cursor:pointer;flex-shrink:0}
-.subtask-chk.done{background:var(--a3);border-color:var(--a3);color:#07070f}
-/* Sheet subtasks */
-.sbt-list{margin-bottom:10px;display:flex;flex-direction:column;gap:4px}
-.sbt-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--b)}
-.sbt-row:last-child{border-bottom:none}
-.sbt-inp{flex:1;background:none;border:none;color:var(--txt);font-family:var(--fb);font-size:13px;outline:none}
-.sbt-del{font-size:12px;color:var(--m2);background:none;border:none;cursor:pointer;padding:2px 4px}
-.add-sbt{font-size:12px;color:var(--a);background:none;border:none;cursor:pointer;font-family:var(--fb);padding:4px 0;margin-bottom:8px}
+/* empty */
+.empty-block{padding:40px 20px;text-align:center;}
+.empty-lbl{font-family:var(--mono);font-size:10px;color:var(--muted2);letter-spacing:0.2em;margin-top:10px;}
 </style>
 </head>
 <body>
+<canvas id="particles"></canvas>
+<div id="app">
 
-<!-- SPLASH -->
-<div id="splash">
-  <div class="splash-logo">Flow<span style="color:var(--a)">EX</span></div>
-  <div class="splash-sub">Cargando...</div>
-  <div class="splash-spin"></div>
-</div>
-
-<!-- AUTH SCREEN -->
-<div id="screen-auth" class="screen">
-  <div class="auth-orb auth-orb-1"></div>
-  <div class="auth-orb auth-orb-2"></div>
-  <div class="auth-orb auth-orb-3"></div>
-  <div class="auth-wrap">
-    <div class="auth-logo">Flow<span>EX</span></div>
-    <div class="auth-tagline">Tu rastreador de hábitos.<br>Sincronizado en todos tus dispositivos.</div>
-
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Entrar</button>
-      <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Crear cuenta</button>
+  <!-- HEADER -->
+  <header>
+    <div class="sys-top">
+      <div class="sys-title">ASSASSIN PROTOCOL <span>/ ACTIVE</span></div>
+      <div class="sys-rank">
+        <div class="sys-rank-letter r-E" id="hRL">E</div>
+        <div class="sys-rank-label" id="hRN">APRENDIZ</div>
+      </div>
+      <button onclick="toggleMute()" id="muteBtn" style="background:none;border:1px solid rgba(0,212,255,0.2);color:var(--muted2);font-family:var(--mono);font-size:10px;padding:4px 8px;cursor:pointer;letter-spacing:0.05em;">🔊</button>
     </div>
-
-    <!-- LOGIN FORM -->
-    <div id="form-login" class="auth-form">
-      <div class="auth-label">Nombre de usuario</div>
-      <input id="login-user" class="auth-input" type="text" placeholder="tu_usuario" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'')"/>
-      <div class="auth-label">PIN (4 dígitos)</div>
-      <div class="pin-display" id="login-pin-display">
-        <div class="pin-dot" id="lpd0"></div>
-        <div class="pin-dot" id="lpd1"></div>
-        <div class="pin-dot" id="lpd2"></div>
-        <div class="pin-dot" id="lpd3"></div>
-      </div>
-      <div class="pin-pad">
-        <button class="pin-key" onclick="pinKey('login',1)">1</button>
-        <button class="pin-key" onclick="pinKey('login',2)">2</button>
-        <button class="pin-key" onclick="pinKey('login',3)">3</button>
-        <button class="pin-key" onclick="pinKey('login',4)">4</button>
-        <button class="pin-key" onclick="pinKey('login',5)">5</button>
-        <button class="pin-key" onclick="pinKey('login',6)">6</button>
-        <button class="pin-key" onclick="pinKey('login',7)">7</button>
-        <button class="pin-key" onclick="pinKey('login',8)">8</button>
-        <button class="pin-key" onclick="pinKey('login',9)">9</button>
-        <button class="pin-key zero" onclick="pinKey('login',0)">0</button>
-        <button class="pin-key del" onclick="pinDel('login')">⌫</button>
-      </div>
-      <button class="auth-btn" id="login-btn" onclick="doLogin()">Entrar →</button>
-      <div class="auth-err" id="login-err"></div>
+    <div class="xp-row">
+      <div class="xp-label">XP</div>
+      <div class="xp-track"><div class="xp-fill" id="hXF" style="width:0%"></div></div>
+      <div class="xp-num" id="hXN">0 / 100</div>
     </div>
+  </header>
 
-    <!-- REGISTER FORM -->
-    <div id="form-register" class="auth-form" style="display:none">
-      <div class="auth-label">Elegí tu nombre de usuario</div>
-      <div class="uname-row">
-        <input id="reg-user" class="auth-input" type="text" placeholder="mi_usuario" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
-          oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'');checkUsername()"
-          style="padding-right:44px"/>
-        <div class="uname-check" id="uname-check"></div>
-      </div>
-      <div class="auth-hint" id="uname-hint">Solo letras, números y guión bajo. Mínimo 3 caracteres.</div>
-      <div class="auth-label" style="margin-top:8px">Elegí tu nombre para mostrar</div>
-      <input id="reg-name" class="auth-input" type="text" placeholder="Tu nombre" maxlength="30"/>
-      <div class="auth-label">Creá tu PIN (4 dígitos)</div>
-      <div class="pin-display" id="reg-pin-display">
-        <div class="pin-dot" id="rpd0"></div>
-        <div class="pin-dot" id="rpd1"></div>
-        <div class="pin-dot" id="rpd2"></div>
-        <div class="pin-dot" id="rpd3"></div>
-      </div>
-      <div class="pin-pad">
-        <button class="pin-key" onclick="pinKey('reg',1)">1</button>
-        <button class="pin-key" onclick="pinKey('reg',2)">2</button>
-        <button class="pin-key" onclick="pinKey('reg',3)">3</button>
-        <button class="pin-key" onclick="pinKey('reg',4)">4</button>
-        <button class="pin-key" onclick="pinKey('reg',5)">5</button>
-        <button class="pin-key" onclick="pinKey('reg',6)">6</button>
-        <button class="pin-key" onclick="pinKey('reg',7)">7</button>
-        <button class="pin-key" onclick="pinKey('reg',8)">8</button>
-        <button class="pin-key" onclick="pinKey('reg',9)">9</button>
-        <button class="pin-key zero" onclick="pinKey('reg',0)">0</button>
-        <button class="pin-key del" onclick="pinDel('reg')">⌫</button>
-      </div>
-      <button class="auth-btn" id="reg-btn" onclick="doRegister()">Crear cuenta →</button>
-      <div class="auth-err" id="reg-err"></div>
-    </div>
-  </div>
-</div>
+  <!-- WEEK STRIP -->
+  <div class="week-strip" id="weekStrip"></div>
 
-<!-- APP SCREEN -->
-<div id="screen-app" class="screen" style="display:none">
-  <div class="topnav">
-    <div class="logo"></div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="sync-indicator" id="sync-status">
-        <div class="sync-dot synced" id="sync-dot"></div>
-        <span id="sync-label">Sync</span>
+  <main>
+    <!-- TODAY -->
+    <div class="view active" id="view-today">
+      <div class="notif-prompt" id="notifPrompt">
+        <span style="font-size:20px">🔔</span>
+        <div class="notif-prompt-text">Activá notificaciones del sistema — te alertamos cuando queden 3h y 30 min para el deadline</div>
+        <button class="notif-prompt-btn" onclick="reqNotif()">ACTIVAR</button>
       </div>
-      <button class="icon-btn" onclick="gp('stats')">📊</button>
-      <button class="icon-btn" onclick="gp('ajustes')">⚙</button>
-    </div>
-  </div>
 
-  <div class="pc" id="pc">
+      <div class="system-ui sp" id="systemPanel">
+        <div class="br"></div>
 
-    <!-- DASHBOARD -->
-    <div class="page active" id="page-dashboard">
-      <div style="padding:6px 0 14px">
-        <div style="font-family:var(--fd);font-size:26px;font-weight:800;letter-spacing:-.8px;margin-bottom:3px">
-          ¡Hola, <em style="color:var(--a)" id="gr-nm">amigo</em>! <span id="gr-emoji">☀️</span>
+        <div class="status-header">
+          <div class="status-title">SYSTEM STATUS</div>
+          <div class="status-dot"></div>
         </div>
-        <div style="font-size:12px;color:var(--m)" id="gr-sub">Cargando tu progreso...</div>
-      </div>
-      <div class="gs-card" id="gs-card" onclick="gp('stats')"></div>
-      <div id="sr" style="display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:0 16px 10px;scrollbar-width:none"></div>
-      <div class="sec-head"><div class="sec-title">📊 Progreso de hoy</div></div>
-      <div id="prg"></div>
-      <div class="qbar">
-        <span style="font-size:16px">📝</span>
-        <input class="qinp" id="quick-note" placeholder="+ Nota o reflexión del día..." onkeydown="if(event.key==='Enter'){addNote();event.preventDefault()}"/>
-        <button class="icon-btn" onclick="addNote()" style="font-size:14px">➕</button>
-      </div>
-      <div class="sec-head">
-        <div class="sec-title">🔥 Hábitos de hoy</div>
-        <button class="sec-more" onclick="gp('habitos')">Ver todos →</button>
-      </div>
-      <div id="dh" class="stg"></div>
-    </div>
 
-    <!-- HÁBITOS -->
-    <div class="page" id="page-habitos">
-      <div class="ph2">Hábitos & Rutinas</div>
-      <div class="ph-sub">Marcalos cada día para construir rachas imparables. 🔥</div>
-      <div class="frow" id="hab-filters">
-        <button class="fp active" data-f="todos" onclick="setHF('todos',this)">Todos</button>
-        <button class="fp" data-f="salud" onclick="setHF('salud',this)">💪 Salud</button>
-        <button class="fp" data-f="mente" onclick="setHF('mente',this)">🧠 Mente</button>
-        <button class="fp" data-f="personal" onclick="setHF('personal',this)">🏠 Personal</button>
-        <button class="fp" data-f="nutricion" onclick="setHF('nutricion',this)">🥗 Nutrición</button>
-      </div>
-      <div id="hpc" class="stg"></div>
-      <button class="plan-btn" onclick="openHabit()" style="margin-top:8px">➕ Agregar hábito personalizado</button>
-    </div>
+        <div class="status-block">
+          <div class="sl"><span class="sl-k">Rank</span><span class="sl-s">:</span><span class="sl-v rv r-E" id="sRL">E</span><span class="sl-v" style="color:var(--muted2);font-size:11px" id="sRN">— APRENDIZ</span></div>
+          <div class="sl"><span class="sl-k">XP</span><span class="sl-s">:</span><span class="sl-v hl" id="sXP">0 / 100</span></div>
+          <div class="xi"><div class="xif" id="sXF" style="width:0%"></div></div>
+        </div>
 
-    <!-- TAREAS -->
-    <div class="page" id="page-tareas">
-      <div class="ph2">Mis Tareas ✅</div>
-      <div class="ph-sub">Organizá todo lo que tenés pendiente.</div>
+        <div id="penaltyBanner" style="display:none" class="penalty-banner" onclick="showPO()">
+          <div class="pb-icon">💀</div>
+          <div class="pb-text" id="pbText">PENALTY QUEST ACTIVO</div>
+          <div class="pb-arr">›</div>
+        </div>
 
-      <div class="frow" id="task-filters">
-        <button class="fp active" data-f="todas" onclick="setTF('todas',this)">Todas</button>
-        <button class="fp" data-f="hoy" onclick="setTF('hoy',this)">📅 Hoy</button>
-        <button class="fp" data-f="work" onclick="setTF('work',this)">💼 Trabajo</button>
-        <button class="fp" data-f="personal" onclick="setTF('personal',this)">🏠 Personal</button>
-        <button class="fp" data-f="health" onclick="setTF('health',this)">💪 Salud</button>
-        <button class="fp" data-f="learn" onclick="setTF('learn',this)">📚 Aprender</button>
-        <button class="fp" data-f="done" onclick="setTF('done',this)">✓ Hechas</button>
-      </div>
+        <div class="quest-block">
+          <div class="quest-header">Daily Quest</div>
+          <div id="questList"></div>
+          <div class="quest-toggle" id="questToggle" onclick="toggleQE()" style="display:none">▼ VER TODOS</div>
+        </div>
 
-      <div class="qbar" style="margin-bottom:14px">
-        <span style="font-size:16px">⚡</span>
-        <input class="qinp" id="quick-task-inp" placeholder="+ Tarea rápida (Enter para guardar)..." onkeydown="if(event.key==='Enter'){addQuickTaskInline();event.preventDefault()}"/>
-        <button class="icon-btn" onclick="addQuickTaskInline()" style="font-size:14px">➕</button>
-      </div>
+        <div class="timer-block">
+          <div class="timer-row">
+            <div class="timer-label">Time Remaining</div>
+            <div class="timer-val" id="timerVal">--:--:--</div>
+          </div>
+          <div class="timer-bar"><div class="timer-bar-fill" id="timerFill" style="width:100%"></div></div>
+        </div>
 
-      <div id="task-list" class="stg"></div>
-
-      <button class="plan-btn" onclick="openTaskSheet()" style="margin-top:6px">➕ Nueva tarea detallada</button>
-    </div>
-
-<style id="MOD-NOTES-CSS">
-/* ── Layout ── */
-.notes-layout{display:flex;flex-direction:column;gap:0;height:100%}
-.notes-toolbar{display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.notes-search{flex:1;min-width:120px;background:var(--s2);border:1px solid var(--b);border-radius:var(--rs);padding:8px 12px;color:var(--txt);font-family:var(--fb);font-size:13px;outline:none;transition:border-color .2s}
-.notes-search:focus{border-color:var(--a)}
-.notes-search::placeholder{color:var(--m)}
-/* ── Folder chips ── */
-.folder-row{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px;scrollbar-width:none}
-.folder-row::-webkit-scrollbar{display:none}
-.folder-chip{flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid var(--b);background:transparent;color:var(--m);font-family:var(--fb);font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
-.folder-chip.active{border-color:var(--a);color:var(--a);background:rgba(124,109,250,.1)}
-.folder-chip:active{transform:scale(.93)}
-.folder-chip .fc-count{background:var(--b2);border-radius:10px;padding:1px 6px;font-size:9px}
-/* ── Note cards ── */
-.note-card{background:var(--surface);border:1px solid var(--b);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.note-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:2px 0 0 2px}
-.note-card.clr-0::before{background:var(--a)}
-.note-card.clr-1::before{background:var(--a2)}
-.note-card.clr-2::before{background:var(--a3)}
-.note-card.clr-3::before{background:var(--a4)}
-.note-card.clr-4::before{background:var(--a5)}
-.note-card:active{transform:scale(.99);background:var(--s2)}
-.note-card.pinned-note{border-color:rgba(250,196,109,.3);background:rgba(250,196,109,.03)}
-.note-card-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
-.note-pin-icon{font-size:12px;color:var(--a4);flex-shrink:0;margin-top:2px}
-.note-title{font-family:var(--fd);font-size:14px;font-weight:700;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;line-clamp:1;-webkit-box-orient:vertical}
-.note-excerpt{font-size:12px;color:var(--m);line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;margin-bottom:7px}
-.note-meta-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.note-folder-badge{font-size:10px;padding:2px 7px;border-radius:5px;background:var(--s2);color:var(--m);border:1px solid var(--b)}
-.note-tag{font-size:10px;padding:2px 7px;border-radius:5px;background:rgba(124,109,250,.1);color:var(--a)}
-.note-date{font-size:10px;color:var(--m2);margin-left:auto}
-.note-card-actions{display:flex;gap:4px;margin-top:8px}
-.note-edit-btn,.note-del-btn{width:24px;height:24px;border-radius:6px;background:var(--s2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;color:var(--m);transition:all .2s}
-.note-edit-btn:active,.note-del-btn:active{transform:scale(.9)}
-/* ── Editor ── */
-.note-editor-overlay{position:fixed;inset:0;background:var(--bg);z-index:400;display:flex;flex-direction:column;padding-top:var(--st)}
-.note-editor-topbar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--b);flex-shrink:0;background:var(--surface)}
-.note-back-btn{width:34px;height:34px;border-radius:9px;background:var(--s2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--m);flex-shrink:0}
-.note-back-btn:active{transform:scale(.9)}
-.note-title-inp{flex:1;background:transparent;border:none;color:var(--txt);font-family:var(--fd);font-size:17px;font-weight:700;outline:none;padding:0}
-.note-title-inp::placeholder{color:var(--m)}
-.note-editor-actions{display:flex;gap:6px}
-.ned-btn{width:32px;height:32px;border-radius:8px;background:var(--s2);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:var(--m);flex-shrink:0;transition:all .2s}
-.ned-btn:active{transform:scale(.88)}
-.ned-btn.active-btn{background:rgba(124,109,250,.12);border-color:var(--a);color:var(--a)}
-.note-meta-bar{display:flex;gap:6px;padding:8px 16px;border-bottom:1px solid var(--b);flex-shrink:0;overflow-x:auto;scrollbar-width:none;align-items:center}
-.note-meta-bar::-webkit-scrollbar{display:none}
-.note-meta-sel{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:5px 10px;color:var(--txt);font-family:var(--fb);font-size:12px;outline:none}
-.note-tags-inp{flex:1;background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:5px 10px;color:var(--txt);font-family:var(--fb);font-size:12px;outline:none;min-width:80px}
-.note-tags-inp::placeholder{color:var(--m)}
-/* ── Editor split view ── */
-.note-body-wrap{flex:1;display:flex;overflow:hidden}
-.note-textarea{flex:1;background:transparent;border:none;color:var(--txt);font-family:var(--fb);font-size:14px;line-height:1.75;padding:16px;resize:none;outline:none;overflow-y:auto}
-.note-textarea::placeholder{color:var(--m)}
-.note-preview-pane{flex:1;padding:16px;overflow-y:auto;border-left:1px solid var(--b);font-size:14px;line-height:1.75}
-.note-preview-pane h1,.note-preview-pane h2,.note-preview-pane h3{font-family:var(--fd);color:var(--txt);margin:12px 0 6px}
-.note-preview-pane h1{font-size:20px}.note-preview-pane h2{font-size:17px}.note-preview-pane h3{font-size:15px}
-.note-preview-pane p{margin-bottom:10px;color:var(--txt)}
-.note-preview-pane code{background:var(--s2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--a)}
-.note-preview-pane pre{background:var(--s2);padding:12px;border-radius:8px;overflow-x:auto;margin-bottom:10px}
-.note-preview-pane pre code{background:none;padding:0}
-.note-preview-pane blockquote{border-left:3px solid var(--a);padding-left:12px;color:var(--m);margin-bottom:10px}
-.note-preview-pane ul,.note-preview-pane ol{padding-left:20px;margin-bottom:10px;color:var(--txt)}
-.note-preview-pane li{margin-bottom:4px}
-.note-preview-pane a{color:var(--a)}
-.note-preview-pane hr{border:none;border-top:1px solid var(--b);margin:14px 0}
-.note-preview-pane strong{color:var(--txt);font-weight:700}
-.note-preview-pane table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px}
-.note-preview-pane th,.note-preview-pane td{border:1px solid var(--b);padding:6px 10px;text-align:left}
-.note-preview-pane th{background:var(--s2);font-weight:600}
-/* ── Markdown toolbar ── */
-.md-toolbar{display:flex;gap:4px;padding:6px 16px;border-bottom:1px solid var(--b);flex-shrink:0;overflow-x:auto;background:var(--s2);scrollbar-width:none}
-.md-toolbar::-webkit-scrollbar{display:none}
-.md-tool{padding:5px 9px;border-radius:7px;border:none;background:transparent;color:var(--m);font-family:var(--fb);font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap;font-weight:600}
-.md-tool:active{background:var(--b);transform:scale(.9)}
-.md-tool:hover{background:var(--b);color:var(--txt)}
-/* ── Stats row ── */
-.notes-stats-row{display:flex;gap:8px;margin-bottom:12px}
-.notes-stat{flex:1;background:var(--surface);border:1px solid var(--b);border-radius:12px;padding:10px;text-align:center}
-.notes-stat-val{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--a);margin-bottom:2px}
-.notes-stat-lbl{font-size:9px;color:var(--m);text-transform:uppercase;letter-spacing:.05em}
-/* ── Color picker ── */
-.note-color-row{display:flex;gap:6px}
-.note-color-opt{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s}
-.note-color-opt.sel{border-color:white;transform:scale(1.2)}
-</style>
-
-    <!-- NOTAS & WIKI -->
-    <div class="page" id="page-notas">
-      <div class="ph2">Notas & Wiki 📝</div>
-      <div class="ph-sub">Tu base de conocimiento personal con markdown.</div>
-
-      <!-- Stats -->
-      <div class="notes-stats-row" id="notes-stats-row"></div>
-
-      <!-- Toolbar -->
-      <div class="notes-toolbar">
-        <input class="notes-search" id="notes-search-inp" placeholder="🔍 Buscar notas..." oninput="filterNotes()"/>
-        <button class="icon-btn" onclick="openNoteEditor()" style="flex-shrink:0" title="Nueva nota">✦</button>
-      </div>
-
-      <!-- Folders disabled -->
-      <div class="folder-row" id="folder-row" style="display:none"></div>
-
-      <!-- Notes list -->
-      <div id="notes-list" class="stg"></div>
-    </div>
-
-    <!-- NOTE EDITOR (full screen overlay) -->
-    <div id="note-editor-overlay" class="note-editor-overlay" style="display:none">
-      <!-- Top bar -->
-      <div class="note-editor-topbar">
-        <div class="note-back-btn" onclick="closeNoteEditor()">‹</div>
-        <input id="note-title-inp" class="note-title-inp" placeholder="Título de la nota..." maxlength="120"/>
-        <div class="note-editor-actions">
-          <div class="ned-btn" id="ned-pin-btn"     onclick="toggleNotePin()"    title="Fijar">📌</div>
-          <div class="ned-btn" id="ned-preview-btn" onclick="toggleNotePreview()" title="Preview">👁</div>
-          <div class="ned-btn" id="ned-save-btn"    onclick="saveCurrentNote()"  title="Guardar" style="background:rgba(124,109,250,.12);border-color:var(--a);color:var(--a)">💾</div>
-          <div class="ned-btn" id="ned-del-btn"     onclick="deleteCurrentNote()" title="Eliminar" style="display:none">🗑</div>
+        <div class="complete-row">
+          <button class="complete-btn" id="completeBtn" onclick="completeSession()">[ COMPLETE DAILY QUEST ]</button>
         </div>
       </div>
 
-      <!-- Meta bar: color + tags -->
-      <div class="note-meta-bar">
-        <div class="note-color-row" id="note-color-row">
-          <div class="note-color-opt sel" data-c="0" style="background:var(--a)"        onclick="selNoteColor(0,this)"></div>
-          <div class="note-color-opt"     data-c="1" style="background:var(--a2)"       onclick="selNoteColor(1,this)"></div>
-          <div class="note-color-opt"     data-c="2" style="background:var(--a3)"       onclick="selNoteColor(2,this)"></div>
-          <div class="note-color-opt"     data-c="3" style="background:var(--a4)"       onclick="selNoteColor(3,this)"></div>
-          <div class="note-color-opt"     data-c="4" style="background:var(--a5)"       onclick="selNoteColor(4,this)"></div>
-        </div>
-        <span style="font-size:11px;color:var(--m);flex-shrink:0">🏷</span>
-        <input id="note-tags-inp" class="note-tags-inp" placeholder="tag1, tag2..."/>
-      </div>
-
-      <!-- Markdown toolbar -->
-      <div class="md-toolbar">
-        <button class="md-tool" onclick="mdInsert('**','**','negrita')">B</button>
-        <button class="md-tool" onclick="mdInsert('*','*','cursiva')" style="font-style:italic">I</button>
-        <button class="md-tool" onclick="mdInsert('~~','~~','tachado')" style="text-decoration:line-through">S</button>
-        <button class="md-tool" onclick="mdInsert('`','`','codigo')">``</button>
-        <button class="md-tool" onclick="mdInsertLine('# ')">H1</button>
-        <button class="md-tool" onclick="mdInsertLine('## ')">H2</button>
-        <button class="md-tool" onclick="mdInsertLine('### ')">H3</button>
-        <button class="md-tool" onclick="mdInsertLine('- ')">• Lista</button>
-        <button class="md-tool" onclick="mdInsertLine('1. ')">1. Lista</button>
-        <button class="md-tool" onclick="mdInsertLine('- [ ] ')">☐ Check</button>
-        <button class="md-tool" onclick="mdInsertLine('> ')">❝ Cita</button>
-        <button class="md-tool" onclick="mdInsert('\n```\n','\n```\n','código')">{ }</button>
-        <button class="md-tool" onclick="mdInsertLine('---')">― HR</button>
-        <button class="md-tool" onclick="mdInsertLink()">🔗</button>
-      </div>
-
-      <!-- Body: editor + optional preview -->
-      <div class="note-body-wrap">
-        <textarea id="note-body-inp" class="note-textarea" placeholder="Escribí tu nota aquí..." oninput="onNoteInput()"></textarea>
-        <div id="note-preview-pane" class="note-preview-pane" style="display:none"></div>
-      </div>
-    </div>
-
-    <!-- SHEET: Nueva carpeta -->
-    <div class="shov" id="sh-folder" onclick="csh('sh-folder',event)">
-      <div class="sh" onclick="event.stopPropagation()">
-        <div class="shh"></div>
-        <div class="sht">📁 Carpetas</div>
-        <div id="folder-list-sh" style="margin-bottom:14px"></div>
-        <div class="fl">Nueva carpeta</div>
-        <div style="display:flex;gap:8px">
-          <input id="new-folder-inp" class="fi" style="margin:0;flex:1" placeholder="Nombre de la carpeta..."/>
-          <button class="shbtn" style="width:auto;padding:0 20px;margin:0" onclick="addFolder()">+</button>
-        </div>
-        <button class="shbtns" onclick="csh('sh-folder')" style="margin-top:12px">Cerrar</button>
-      </div>
+      <div class="detail-section" id="detailSection"></div>
     </div>
 
     <!-- STATS -->
-    <div class="page" id="page-stats">
-      <div class="ph2">📊 Estadísticas</div>
-      <div class="ph-sub">Tu progreso semanal, rachas y actividad.</div>
-      <div class="hs-grid" id="stats-top"></div>
-      <div class="sec-head"><div class="sec-title">📅 Esta semana</div></div>
-      <div class="stat-card" id="week-chart"></div>
-      <div class="sec-head"><div class="sec-title">🏆 Rachas</div></div>
-      <div id="streaks-list" class="stg"></div>
-      <div class="sec-head"><div class="sec-title">📆 Actividad (28 días)</div></div>
-      <div class="stat-card">
-        <div style="font-size:11px;color:var(--m);margin-bottom:10px">Más verde = más hábitos completados</div>
-        <div id="heatmap-grid" class="heatmap"></div>
-        <div style="display:flex;gap:4px;margin-top:10px;align-items:center">
-          <span style="font-size:10px;color:var(--m)">Menos</span>
-          <div style="width:12px;height:12px;border-radius:3px;background:var(--b)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:rgba(109,250,196,.25)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:rgba(109,250,196,.5)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:rgba(109,250,196,.75)"></div>
-          <div style="width:12px;height:12px;border-radius:3px;background:#6dfac4"></div>
-          <span style="font-size:10px;color:var(--m)">Más</span>
+    <div class="view" id="view-stats">
+      <div class="stats-wrap">
+        <div class="streak-panel">
+          <div class="streak-fire">🔥</div>
+          <div><div class="streak-n" id="stStreak">0</div><div class="streak-sub">DÍAS DE RACHA</div></div>
+        </div>
+        <div class="stat-panel">
+          <div class="stat-panel-title">COMBAT STATS</div>
+          <div class="stat-grid">
+            <div class="stat-item"><div class="stat-num" style="color:var(--cyan)" id="stSess">0</div><div class="stat-lbl">SESIONES</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--gold2)" id="stXP">0</div><div class="stat-lbl">XP TOTAL</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--green)" id="stEx">0</div><div class="stat-lbl">EJERCICIOS</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--blue2)" id="stWeek">1</div><div class="stat-lbl">SEMANA</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--red2)" id="stFails">0</div><div class="stat-lbl">FALLOS</div></div>
+            <div class="stat-item"><div class="stat-num" style="color:var(--muted2)" id="stPen">0</div><div class="stat-lbl">CASTIGOS</div></div>
+          </div>
+        </div>
+        <div class="rank-prog-panel">
+          <div class="rank-prog-title">RANK PROGRESSION</div>
+          <div class="rank-row" id="rankRow"></div>
+        </div>
+        <div class="stat-panel" style="padding:0">
+          <div style="padding:10px 14px;border-bottom:1px solid rgba(0,212,255,0.08)"><div class="stat-panel-title" style="margin:0">MISSION LOG</div></div>
+          <div id="histList"><div class="empty-block"><div style="font-size:40px">📋</div><div class="empty-lbl">NO MISSIONS YET</div></div></div>
         </div>
       </div>
     </div>
 
-    <!-- IA -->
-    <div class="page" id="page-ia">
-      <div class="ph2">🤖 Asistente IA</div>
-      <div class="ph-sub">Tu coach personal de hábitos. Preguntale lo que quieras.</div>
-      <div class="iacw">
-        <div class="iams" id="ia-msgs"></div>
-        <div id="ia-qrs" class="iaqrs"></div>
-        <div class="iaib">
-          <textarea class="iainp" id="ia-inp" placeholder="Preguntá algo..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendIA()}"></textarea>
-          <button class="iasnd" onclick="sendIA()">↑</button>
+    <!-- PROFILE -->
+    <div class="view" id="view-profile">
+      <div class="profile-wrap">
+        <div class="profile-hero">
+          <div class="prof-rank-big r-E" id="prBig">E</div>
+          <div class="prof-name" id="profHunterName">CAZADOR DEKU</div>
+          <div class="prof-rank-name" id="prName">RANGO E — APRENDIZ</div>
         </div>
+        <div class="notif-panel">
+          <div class="notif-ph">NOTIFICATION SYSTEM</div>
+          <div class="notif-row">
+            <div class="notif-desc">Activar alertas push — aviso a las 3h y 30min antes del deadline diario</div>
+            <button class="notif-btn" id="notifBtn" onclick="reqNotif()">ACTIVAR</button>
+          </div>
+          <div class="notif-row" style="border-top:1px solid rgba(0,212,255,0.06)">
+            <div class="notif-desc" id="notifStatus">Estado: sin permiso</div>
+          </div>
+        </div>
+        <div class="info-panel">
+          <div class="info-row"><span class="irk">Peso actual</span><span class="irv">62 kg</span></div>
+          <div class="info-row"><span class="irk">Objetivo</span><span class="irv">FÍSICO ATLÉTICO</span></div>
+          <div class="info-row"><span class="irk">Sesión</span><span class="irv">30-40 min</span></div>
+          <div class="info-row"><span class="irk">Programa</span><span class="irv">12 semanas</span></div>
+          <div class="info-row"><span class="irk">Inicio</span><span class="irv" id="prStart">—</span></div>
+        </div>
+        <div class="info-panel">
+          <div class="info-row"><span class="irk">Sem. 3</span><span class="irv" style="color:var(--green)">Abdomen firme</span></div>
+          <div class="info-row"><span class="irk">Sem. 6</span><span class="irv" style="color:var(--cyan)">Hombros definidos</span></div>
+          <div class="info-row"><span class="irk">Sem. 8-10</span><span class="irv" style="color:var(--blue2)">Cintura marcada</span></div>
+          <div class="info-row"><span class="irk">Sem. 12</span><span class="irv" style="color:var(--gold2)">Físico cazador</span></div>
+        </div>
+        <button class="reset-btn" onclick="resetData()">⚠ RESET PROGRESS DATA</button>
       </div>
     </div>
-
-    <!-- AJUSTES -->
-    <div class="page" id="page-ajustes">
-      <div class="ph2">Ajustes</div>
-      <div id="settc"></div>
-    </div>
-
-  </div><!-- /pc -->
-
-  <nav class="bnav">
-    <button class="nt active" onclick="gp('dashboard')" id="tab-dashboard"><div class="ni">⊞</div><div class="nl">Inicio</div></button>
-    <button class="nt" onclick="gp('habitos')" id="tab-habitos"><div class="ni">🔥</div><div class="nl">Hábitos</div></button>
-    <button class="nt" onclick="gp('tareas')" id="tab-tareas"><div class="ni">✅</div><div class="nl">Tareas</div></button>
-    <button class="nt" onclick="gp('notas')" id="tab-notas"><div class="ni">📝</div><div class="nl">Notas</div></button>
-    <button class="nt" onclick="gp('lectura')" id="tab-lectura"><div class="ni">📚</div><div class="nl">Lectura</div></button>
-    <button class="nt" onclick="gp('notifs')" id="tab-notifs"><div class="ni">🔔</div><div class="nl">Avisos</div></button>
-    <button class="nt" onclick="gp('logros')" id="tab-logros"><div class="ni">🏆</div><div class="nl">Logros</div></button>
-    <button class="nt" onclick="gp('breath')" id="tab-breath"><div class="ni">🌬️</div><div class="nl">Mind</div></button>
-    <button class="nt" onclick="gp('stats')" id="tab-stats"><div class="ni">📊</div><div class="nl">Stats</div></button>
-    <button class="nt" onclick="gp('ia')" id="tab-ia"><div class="ni">🤖</div><div class="nl">IA</div></button>
-    <button class="nt" id="tab-admin" onclick="gp('admin')" style="display:none"><div class="ni">👑</div><div class="nl">Admin</div></button>
-  </nav>
-  <button class="fab" onclick="openHabit()">＋</button>
+  </main>
 </div>
 
-<!-- SHEET TAREA -->
-<div class="shov" id="sh-task" onclick="csh('sh-task',event)">
-  <div class="sh" onclick="event.stopPropagation()">
-    <div class="shh"></div>
-    <div class="sht" id="sh-task-title">✦ Nueva tarea</div>
+<!-- NAV -->
+<nav>
+  <button class="nav-btn active" onclick="switchView('today',this)"><span class="nav-icon">⚡</span><span class="nav-label">SYSTEM</span></button>
+  <button class="nav-btn" onclick="switchView('stats',this)"><span class="nav-icon">📊</span><span class="nav-label">STATS</span></button>
+  <button class="nav-btn" onclick="switchView('profile',this)"><span class="nav-icon">👤</span><span class="nav-label">HUNTER</span></button>
+</nav>
 
-    <div class="fl">Nombre</div>
-    <input id="task-nm" class="fi" placeholder="¿Qué hay que hacer?"/>
+<!-- OVERLAYS -->
+<div id="overlay">
+  <div class="ov-sys">◈ SYSTEM NOTIFICATION ◈</div>
+  <div class="ov-rank r-E" id="ovR">E</div>
+  <div class="ov-title">QUEST COMPLETE</div>
+  <div class="ov-sub" id="ovS"></div>
+  <div class="ov-xp" id="ovX">+0 XP</div>
+  <div class="ov-streak" id="ovSt"></div>
+  <button class="ov-btn" onclick="document.getElementById('overlay').classList.remove('show')">[ CONTINUE ]</button>
+</div>
 
-    <div class="fr">
-      <div>
-        <div class="fl">Prioridad</div>
-        <select id="task-pri" class="fi">
-          <option value="high">🔴 Alta</option>
-          <option value="mid" selected>🟡 Media</option>
-          <option value="low">🟢 Baja</option>
-        </select>
-      </div>
-      <div>
-        <div class="fl">Categoría</div>
-        <select id="task-cat" class="fi">
-          <option value="work">💼 Trabajo</option>
-          <option value="personal">🏠 Personal</option>
-          <option value="health">💪 Salud</option>
-          <option value="learn">📚 Aprender</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="fr">
-      <div>
-        <div class="fl">Fecha límite</div>
-        <input id="task-date" class="fi" type="date"/>
-      </div>
-      <div>
-        <div class="fl">Tiempo estimado</div>
-        <select id="task-time" class="fi">
-          <option value="15m">15 min</option>
-          <option value="30m">30 min</option>
-          <option value="1h" selected>1 hora</option>
-          <option value="2h">2 horas</option>
-          <option value="4h+">+4 horas</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="fl">Subtareas (opcional)</div>
-    <div class="sbt-list" id="sbt-list"></div>
-    <button class="add-sbt" onclick="addSubtaskField()">+ Agregar subtarea</button>
-
-    <div class="fl">Notas (opcional)</div>
-    <textarea id="task-notes" class="fi" rows="2" placeholder="Contexto, links..."></textarea>
-
-    <button class="shbtn" onclick="saveTask()">Guardar tarea</button>
-    <button class="del-btn" id="del-task-btn" onclick="deleteTask()" style="display:none">🗑 Eliminar tarea</button>
-    <button class="shbtns" onclick="csh('sh-task')">Cancelar</button>
+<div id="penaltyOverlay">
+  <div class="po-warn">◈ PENALTY QUEST ACTIVATED ◈</div>
+  <div class="po-skull">💀</div>
+  <div class="po-title">PENALTY QUEST</div>
+  <div class="po-sub" id="poSub">No completaste la misión en 12 horas</div>
+  <div class="po-consec" id="poConsec" style="display:none"></div>
+  <div class="po-card">
+    <div class="po-card-title">⚠ PENALTY QUEST</div>
+    <div class="po-ex" id="poEx">50 FLEXIONES</div>
+    <div class="po-det" id="poDet">Completá ahora mismo</div>
+    <div class="po-or">— OR —</div>
+    <div class="po-alt" id="poAlt">Caminar 2 km hoy</div>
+  </div>
+  <div class="po-btns">
+    <button class="po-accept" onclick="acceptPenalty()">⚔ ACEPTAR</button>
+    <button class="po-done" onclick="completePenalty()">✓ YA LO HICE</button>
   </div>
 </div>
 
-<!-- SHEET HÁBITO -->
-<div class="shov" id="sh-h" onclick="csh('sh-h',event)">
-  <div class="sh" onclick="event.stopPropagation()">
-    <div class="shh"></div>
-    <div class="sht" id="sh-h-title">🔥 Nuevo hábito</div>
-    <div class="fl">Nombre del hábito</div>
-    <input id="h-nm" class="fi" placeholder="Ej: Tomar 2L de agua..."/>
-    <div class="fr">
-      <div><div class="fl">Emoji</div><input id="h-em" class="fi" placeholder="💧" maxlength="4"/></div>
-      <div><div class="fl">Área</div>
-        <select id="h-ar" class="fi">
-          <option value="salud">💪 Salud</option>
-          <option value="mente">🧠 Mente</option>
-          <option value="personal">🏠 Personal</option>
-          <option value="nutricion">🥗 Nutrición</option>
-        </select>
-      </div>
-    </div>
-    <div class="fl">Frecuencia</div>
-    <select id="h-fr" class="fi">
-      <option value="daily">Todos los días</option>
-      <option value="weekdays">Días de semana (L-V)</option>
-      <option value="weekends">Fines de semana</option>
-      <option value="3x">3 veces por semana</option>
-    </select>
-    <div class="fl">Meta / Descripción (opcional)</div>
-    <input id="h-goal" class="fi" placeholder="Ej: 8 vasos por día..."/>
-    <button class="shbtn" onclick="saveHabit()">Guardar hábito</button>
-    <button class="del-btn" id="del-habit-btn" onclick="deleteHabit()" style="display:none">🗑 Eliminar hábito</button>
-    <button class="shbtns" onclick="csh('sh-h')">Cancelar</button>
-  </div>
+<div class="toast" id="toast">
+  <span id="toastI">⚡</span>
+  <span id="toastM"></span>
 </div>
 
-<div id="tc"></div>
-
-<!-- ═══════════════════════════════════════════
-     FIREBASE + APP LOGIC
-═══════════════════════════════════════════ -->
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import {
-  getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp,
-  collection, getDocs
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-// ── Firebase config ────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyBjU04ggwkWLrM5-ZS9167ixsPY9agv_kg",
-  authDomain: "flowex-app-cf0ae.firebaseapp.com",
-  projectId: "flowex-app-cf0ae",
-  storageBucket: "flowex-app-cf0ae.firebasestorage.app",
-  messagingSenderId: "317866469877",
-  appId: "1:317866469877:web:c6075e8f5ddd1fe36458bc"
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
-// ── Creator config ─────────────────────────────
-const CREATOR_USERNAME = 'nulvec';
-const isCreator = () => CUR_USER === CREATOR_USERNAME;
-
-// ── Utilities ───────────────────────────────────
-const uid  = () => Math.random().toString(36).slice(2,10);
-const today = () => new Date().toISOString().slice(0,10);
-const dateLabel = iso => {
-  const d = new Date(iso+'T12:00:00');
-  const m = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`;
-};
-const hashPIN = async pin => {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin+'flowex_salt'));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-};
-
-// ── Default habits ──────────────────────────────
-const mkHabit = (name,emoji,area,goal) => ({
-  id:uid(),name,emoji,area,goal,freq:'daily',logs:{},created:today()
-});
-const DEFAULT_HABITS = [
-  mkHabit('Ejercicio / Gym','🏋️','salud','30 minutos mínimo de actividad'),
-  mkHabit('Tomar agua','💧','salud','2 litros al día — 8 vasos'),
-  mkHabit('Dormir 8 horas','😴','salud','Acostarme antes de las 11pm'),
-  mkHabit('Leer','📚','mente','20 páginas por día'),
-  mkHabit('Meditar','🧘','mente','10 minutos de mindfulness'),
-  mkHabit('Dieta saludable','🥗','nutricion','Comer real, evitar procesados'),
-  mkHabit('Sin azúcar','🚫','nutricion','Sin dulces ni refrescos'),
-  mkHabit('Caminar','🚶','salud','10,000 pasos diarios'),
-  mkHabit('Vitaminas','💊','salud','Tomar suplementos del día'),
-  mkHabit('Journaling','✍️','mente','5 min escribiendo reflexiones'),
-  mkHabit('Sin pantallas al dormir','📵','personal','No celular 1h antes de dormir'),
-  mkHabit('Estiramiento','🤸','salud','15 minutos de flexibilidad'),
+<script>
+// ══════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════
+const DAYS=[
+  {id:'lunes',name:'LUN',icon:'💪',label:'LUNES',type:'UPPER BODY',rest:false,sections:[
+    {t:'CALENTAMIENTO',ex:[{n:'Trote suave',d:'5 min',xp:5},{n:'Movilidad hombros',d:'3 min',xp:5}]},
+    {t:'ENTRENAMIENTO — 4 RONDAS',ex:[{n:'Flexiones normales',d:'20 reps',xp:10},{n:'Pike push ups',d:'12 reps',xp:12},{n:'Flexiones cerradas',d:'15 reps',xp:10},{n:'Press bloque (sobre cabeza)',d:'12 reps',xp:12},{n:'Plancha',d:'45 seg',xp:10}]},
+    {t:'BLOQUES',ex:[{n:'Farmer Walk con bloques',d:'4 × 25 m',xp:15}]}
+  ]},
+  {id:'martes',name:'MAR',icon:'🔥',label:'MARTES',type:'HIIT',rest:false,sections:[
+    {t:'CIRCUITO — 4 RONDAS',ex:[{n:'Burpees',d:'12 reps',xp:15},{n:'Mountain climbers',d:'30 reps',xp:12},{n:'Sentadillas',d:'30 reps',xp:10},{n:'Plancha',d:'30 seg',xp:10}]}
+  ]},
+  {id:'miercoles',name:'MIÉ',icon:'🌊',label:'MIÉRCOLES',type:'CARDIO + CORE',rest:false,sections:[
+    {t:'CARDIO',ex:[{n:'Trote suave',d:'3-4 km',xp:20}]},
+    {t:'CORE',ex:[{n:'Carry unilateral con bloque',d:'3 × 20 m por lado',xp:15},{n:'Plancha',d:'3 × 45 seg',xp:12}]}
+  ]},
+  {id:'jueves',name:'JUE',icon:'🧘',label:'JUEVES',type:'RECUPERACIÓN',rest:false,sections:[
+    {t:'ACTIVIDAD',ex:[{n:'Caminata rápida',d:'20 min',xp:10},{n:'Movilidad',d:'5 min',xp:5},{n:'Estiramientos',d:'5 min',xp:5}]}
+  ]},
+  {id:'viernes',name:'VIE',icon:'⚡',label:'VIERNES',type:'FULL BODY',rest:false,sections:[
+    {t:'ENTRENAMIENTO — 4 RONDAS',ex:[{n:'Flexiones',d:'20 reps',xp:10},{n:'Sentadillas',d:'35 reps',xp:12},{n:'Pike push ups',d:'10 reps',xp:10},{n:'Puente glúteo',d:'20 reps',xp:10},{n:'Pantorrillas',d:'40 reps',xp:8},{n:'Plancha',d:'1 min',xp:12}]},
+    {t:'BLOQUES',ex:[{n:'Farmer Hold con bloques',d:'3 × 40 seg',xp:15}]}
+  ]},
+  {id:'sabado',name:'SÁB',icon:'🏃',label:'SÁBADO',type:'CARDIO',rest:false,sections:[
+    {t:'OPCIÓN A',ex:[{n:'Trote suave',d:'3 km',xp:20}]},
+    {t:'OPCIÓN B',ex:[{n:'Caminata rápida',d:'30 min',xp:15}]}
+  ]},
+  {id:'domingo',name:'DOM',icon:'😴',label:'DOMINGO',type:'DESCANSO',rest:true,sections:[]}
 ];
 
-// ── State ───────────────────────────────────────
-let CUR_USER = null; // current username
-let S = {             // local mirror of Firestore doc
-  name:'', theme:'', xp:0, level:1,
-  habits:[], notes:[], noteFolders:['General','Ideas','Trabajo','Personal'], curHF:'todos',
-  tasks: [],
-};
-let unsubSnapshot = null; // live listener cleanup
-let syncTimer = null;
-let isDirty = false;
+const RANKS=[
+  {l:'E',xp:0,name:'APRENDIZ',cls:'r-E'},
+  {l:'D',xp:100,name:'SOLDADO',cls:'r-D'},
+  {l:'C',xp:250,name:'GUERRERO',cls:'r-C'},
+  {l:'B',xp:450,name:'ÉLITE',cls:'r-B'},
+  {l:'A',xp:700,name:'MAESTRO',cls:'r-A'},
+  {l:'S',xp:1000,name:'CAZADOR S',cls:'r-S'},
+];
 
-// ── PIN state ───────────────────────────────────
-let loginPin = '', regPin = '';
+const RP=[
+  {e:'50 FLEXIONES',d:'3 series de 17 o seguidas',a:'Caminar 2 km'},
+  {e:'2 MIN DE PLANCHA',d:'2 × 1 min o completa',a:'30 Pike push ups'},
+  {e:'80 SENTADILLAS',d:'4 series de 20',a:'20 Burpees'},
+  {e:'20 BURPEES',d:'Con salto completo, sin trampa',a:'60 Flexiones'},
+  {e:'CAMINAR 2 KM',d:'Ahora. No después.',a:'50 Flexiones'},
+];
+const MP=[
+  {e:'DUCHA FRÍA 2 MIN',d:'Sin agua caliente. Completo.',a:'50 Flexiones en frío'},
+  {e:'LIMPIAR HABITACIÓN',d:'10 minutos. Ordenada.',a:'Plancha 2 min'},
+  {e:'SIN REDES 24H',d:'Instagram/TikTok eliminados.',a:'80 Sentadillas'},
+];
+const CP=[
+  {e:'50 FLEXIONES',d:'1 día de fallo — castigo base',a:'Caminar 2 km'},
+  {e:'100 SENTADILLAS',d:'2 días consecutivos',a:'Plancha 3 × 1 min'},
+  {e:'CAMINAR 3 KM',d:'3 días sin entrenar',a:'60 flex + 60 sent'},
+  {e:'REPETIR ENTRENAMIENTO',d:'4 días fallados — repetís el día saltado',a:'Ducha fría 3 min'},
+];
 
-// ── Local cache ─────────────────────────────────
-const LC_KEY = 'flowex_session';
-const saveSession = () => {
-  try { localStorage.setItem(LC_KEY, JSON.stringify({ user: CUR_USER, data: S })); } catch(e){}
-};
-const loadSession = () => {
-  try {
-    const r = localStorage.getItem(LC_KEY);
-    if (r) return JSON.parse(r);
-  } catch(e){}
-  return null;
-};
-const clearSession = () => localStorage.removeItem(LC_KEY);
-
-// ── Firestore helpers ────────────────────────────
-const userRef = username => doc(db, 'users', username);
-
-const pushToFirestore = async (data) => {
-  if (!CUR_USER) return;
-  setSyncStatus('syncing');
-  try {
-    await setDoc(userRef(CUR_USER), { ...data, updatedAt: serverTimestamp() }, { merge: true });
-    setSyncStatus('synced');
-    saveSession();
-  } catch(e) {
-    console.warn('Sync error:', e);
-    setSyncStatus('error');
-  }
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let S={
+  xp:0,streak:0,lastCompleted:null,
+  totalSessions:0,totalExercises:0,totalPenalties:0,
+  startDate:null,history:[],
+  todayChecked:{},currentDay:null,sessionDone:false,
+  missionStartTime:null,
+  consecutiveFails:0,activePenalty:null,penaltyDone:false,
 };
 
-// Debounced save
-const scheduleSave = () => {
-  isDirty = true;
-  clearTimeout(syncTimer);
-  syncTimer = setTimeout(() => {
-    if (isDirty) { pushToFirestore(S); isDirty = false; }
-  }, 1500);
-};
+const SKEY='deku_v3';
+function load(){try{const s=localStorage.getItem(SKEY);if(s)S={...S,...JSON.parse(s)};}catch(e){}}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
 
-const setSyncStatus = (status) => {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  if (!dot || !lbl) return;
-  dot.className = 'sync-dot ' + status;
-  lbl.textContent = status === 'syncing' ? 'Guardando...' : status === 'error' ? 'Sin conexión' : 'Sincronizado';
-};
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+const DMAP=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+function getTDid(){return DMAP[new Date().getDay()];}
+function getDay(id){return DAYS.find(d=>d.id===id);}
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function getRank(){let r=RANKS[0];for(const rk of RANKS){if(S.xp>=rk.xp)r=rk;}return r;}
+function getRankIdx(){return RANKS.findIndex(r=>r===getRank());}
+function getXpPct(){const ri=getRankIdx(),r=RANKS[ri],n=RANKS[ri+1];if(!n)return 100;return Math.min(100,Math.round(((S.xp-r.xp)/(n.xp-r.xp))*100));}
+function getXpNext(){const ri=getRankIdx(),n=RANKS[ri+1];return n?n.xp:RANKS[RANKS.length-1].xp;}
+function getAllEx(day){const all=[];day.sections.forEach(s=>s.ex.forEach(e=>all.push({...e,st:s.t})));return all;}
+function isCompletedToday(id){const ts=new Date().toDateString();return S.history.some(h=>h.dayId===id&&new Date(h.rawDate).toDateString()===ts);}
 
-// ── Start realtime listener ──────────────────────
-const startListener = (username) => {
-  if (unsubSnapshot) unsubSnapshot();
-  unsubSnapshot = onSnapshot(userRef(username), snap => {
-    if (snap.exists()) {
-      const remote = snap.data();
-      // Merge remote into local S (remote wins, but don't lose local unsaved changes)
-      S = { ...S, ...remote };
-      delete S.updatedAt; delete S.pinHash;
-      saveSession();
-      renderAll();
+// ══════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════
+function getLeft(){
+  if(!S.missionStartTime||S.sessionDone)return null;
+  return new Date(S.missionStartTime).getTime()+12*3600000-Date.now();
+}
+function fmt(ms){
+  if(ms<=0)return'00:00:00';
+  const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);
+  return`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+let timerInt=null;
+function startTimer(){
+  if(timerInt)clearInterval(timerInt);
+  timerInt=setInterval(tick,1000);
+  tick();
+}
+function tick(){
+  const tv=document.getElementById('timerVal'),tf=document.getElementById('timerFill');
+  if(!tv)return;
+  if(S.sessionDone){tv.textContent='COMPLETE';tv.className='timer-val ok';if(tf){tf.style.width='100%';tf.style.background='var(--green)';}return;}
+  const rem=getLeft();
+  if(rem===null){tv.textContent='--:--:--';tv.className='timer-val';return;}
+  if(rem<=0){
+    tv.textContent='00:00:00';tv.className='timer-val danger';
+    if(tf){tf.style.width='0%';tf.style.background='var(--red)';}
+    if(!S.activePenalty&&!S.penaltyDone){
+      S.consecutiveFails=(S.consecutiveFails||0)+1;
+      assignPenalty(S.consecutiveFails);
+      save();showPO();updatePB();renderQL();
+      // showPO already plays SFX.penalty()
+      notify('💀 PENALTY QUEST','No completaste la misión. Castigo activado.');
     }
-  }, err => {
-    console.warn('Listener error:', err);
-    setSyncStatus('error');
-  });
-};
-
-// ── AUTH ─────────────────────────────────────────
-
-// PIN keypad
-window.pinKey = (form, digit) => {
-  if (form === 'login') {
-    if (loginPin.length >= 4) return;
-    loginPin += digit;
-    updatePinDisplay('login', loginPin);
-    if (loginPin.length === 4) { /* ready */ }
-  } else {
-    if (regPin.length >= 4) return;
-    regPin += digit;
-    updatePinDisplay('reg', regPin);
-  }
-};
-window.pinDel = (form) => {
-  if (form === 'login') { loginPin = loginPin.slice(0,-1); updatePinDisplay('login', loginPin); }
-  else { regPin = regPin.slice(0,-1); updatePinDisplay('reg', regPin); }
-};
-const updatePinDisplay = (form, pin) => {
-  for (let i=0;i<4;i++) {
-    const dot = document.getElementById((form==='login'?'lpd':'rpd')+i);
-    if (dot) dot.classList.toggle('filled', i < pin.length);
-  }
-};
-
-window.switchAuthTab = (tab) => {
-  document.getElementById('form-login').style.display = tab==='login'?'flex':'none';
-  document.getElementById('form-register').style.display = tab==='register'?'flex':'none';
-  document.getElementById('tab-login').classList.toggle('active', tab==='login');
-  document.getElementById('tab-register').classList.toggle('active', tab==='register');
-  loginPin = ''; regPin = '';
-  updatePinDisplay('login',''); updatePinDisplay('reg','');
-};
-
-// Username availability check
-let unameTimer = null;
-let unameOk = false;
-window.checkUsername = async () => {
-  const val = document.getElementById('reg-user').value.trim();
-  const check = document.getElementById('uname-check');
-  const hint = document.getElementById('uname-hint');
-  unameOk = false;
-  if (val.length < 3) { check.textContent=''; hint.textContent='Mínimo 3 caracteres.'; return; }
-  check.textContent='⏳';
-  clearTimeout(unameTimer);
-  unameTimer = setTimeout(async () => {
-    try {
-      const snap = await getDoc(userRef(val));
-      if (snap.exists()) {
-        check.textContent = '❌';
-        hint.textContent = `"${val}" ya está en uso. Probá con otro.`;
-        hint.style.color = 'var(--a2)';
-        unameOk = false;
-      } else {
-        check.textContent = '✅';
-        hint.textContent = `"${val}" está disponible!`;
-        hint.style.color = 'var(--a3)';
-        unameOk = true;
-      }
-    } catch(e) {
-      check.textContent = '⚠️';
-      hint.textContent = 'Error de conexión.';
-    }
-  }, 500);
-};
-
-window.doLogin = async () => {
-  const username = document.getElementById('login-user').value.trim().toLowerCase();
-  const err = document.getElementById('login-err');
-  const btn = document.getElementById('login-btn');
-  if (!username) { err.textContent = 'Escribí tu nombre de usuario.'; return; }
-  if (loginPin.length < 4) { err.textContent = 'Ingresá tu PIN de 4 dígitos.'; return; }
-  btn.disabled = true; btn.textContent = 'Verificando...'; err.textContent = '';
-  try {
-    const snap = await getDoc(userRef(username));
-    if (!snap.exists()) { err.textContent = 'Usuario no encontrado.'; btn.disabled=false; btn.textContent='Entrar →'; return; }
-    const data = snap.data();
-    const hash = await hashPIN(loginPin);
-    if (data.pinHash !== hash) { err.textContent = 'PIN incorrecto.'; loginPin=''; updatePinDisplay('login',''); btn.disabled=false; btn.textContent='Entrar →'; return; }
-    // Success
-    CUR_USER = username;
-    S = { ...S, ...data };
-    delete S.pinHash; delete S.updatedAt;
-    saveSession();
-    startApp();
-  } catch(e) {
-    err.textContent = 'Error de conexión. Intentá de nuevo.';
-    btn.disabled=false; btn.textContent='Entrar →';
-  }
-};
-
-window.doRegister = async () => {
-  const username = document.getElementById('reg-user').value.trim().toLowerCase();
-  const name = document.getElementById('reg-name').value.trim();
-  const err = document.getElementById('reg-err');
-  const btn = document.getElementById('reg-btn');
-  if (username.length < 3) { err.textContent = 'El usuario debe tener al menos 3 caracteres.'; return; }
-  if (!unameOk) { err.textContent = 'Verificá que el usuario esté disponible.'; return; }
-  if (!name) { err.textContent = 'Escribí tu nombre para mostrar.'; return; }
-  if (regPin.length < 4) { err.textContent = 'Creá un PIN de 4 dígitos.'; return; }
-  btn.disabled=true; btn.textContent='Creando cuenta...'; err.textContent='';
-  try {
-    // Double-check availability (race condition)
-    const snap = await getDoc(userRef(username));
-    if (snap.exists()) { err.textContent = 'Ese usuario ya fue tomado. Elegí otro.'; btn.disabled=false; btn.textContent='Crear cuenta →'; return; }
-    const hash = await hashPIN(regPin);
-    const newData = {
-      username, name, theme:'', xp:0, level:1,
-      habits: DEFAULT_HABITS, notes:[],
-      pinHash: hash, createdAt: serverTimestamp(),
-    };
-    await setDoc(userRef(username), newData);
-    CUR_USER = username;
-    S = { ...newData }; delete S.pinHash;
-    saveSession();
-    startApp();
-  } catch(e) {
-    err.textContent = 'Error al crear cuenta. Intentá de nuevo.';
-    btn.disabled=false; btn.textContent='Crear cuenta →';
-  }
-};
-
-// ── APP START ─────────────────────────────────────
-const startApp = () => {
-  document.getElementById('screen-auth').classList.remove('active');
-  document.getElementById('screen-auth').style.display='none';
-  document.getElementById('screen-app').classList.add('active');
-  document.getElementById('screen-app').style.display='flex';
-  if (S.theme) document.body.className = S.theme;
-  // Show admin nav tab if creator
-  const adminTab = document.getElementById('tab-admin');
-  if (adminTab) adminTab.style.display = isCreator() ? 'flex' : 'none';
-  startListener(CUR_USER);
-  initApp();
-};
-
-const initApp = () => {
-  document.getElementById('gr-nm').textContent = S.name || CUR_USER || 'amigo';
-  // Creator badge in topnav
-  const existBadge = document.getElementById('creator-topbadge');
-  if (existBadge) existBadge.remove();
-  if (isCreator()) {
-    const logo = document.querySelector('.logo');
-    if (logo) {
-      const badge = document.createElement('span');
-      badge.id = 'creator-topbadge';
-      badge.className = 'creator-badge';
-      badge.style.marginLeft = '10px';
-      badge.innerHTML = '<span class="creator-crown">👑</span> CREADOR';
-      logo.parentNode.insertBefore(badge, logo.nextSibling);
-    }
-  }
-
-  // Agregar ejemplos para nuevos usuarios
-  if (!S.books || S.books.length === 0) {
-    S.books = [
-      { id: uid(), title: 'Atomic Habits', author: 'James Clear', emoji: '📗', coverColor: '#7c6dfa', pages: 320, curPage: 50, status: 'leyendo', genre: 'Desarrollo personal', review: 'Libro excelente sobre hábitos.', sessions: [], rating: 0, addedAt: today() },
-      { id: uid(), title: 'Sapiens', author: 'Yuval Noah Harari', emoji: '📚', coverColor: '#6dfac4', pages: 400, curPage: 0, status: 'backlog', genre: 'Historia', review: '', sessions: [], rating: 0, addedAt: today() }
-    ];
-  }
-  if (!S.notifSettings) {
-    S.notifSettings = { enabled: false, habits: {}, dailySummary: '21:00', remindUnmarked: true };
-  }
-  if (!S.breathHistory || S.breathHistory.length === 0) {
-    S.breathHistory = [
-      { id: uid(), date: today(), time: '08:00', tech: 'Box Breathing', icon: '📦', cycles: 4 },
-      { id: uid(), date: today(), time: '12:00', tech: '4-7-8', icon: '😴', cycles: 4 }
-    ];
-    S.breathSessions = 8;
-  }
-  if (!S.notes || S.notes.length === 0) {
-    S.notes = [
-      { id: uid(), title: 'Bienvenido a Notas', body: 'Esta es una nota de ejemplo. Podés editarla o eliminarla.\n\n**Markdown soportado**: # Título, - Lista, etc.', folder: 'General', tags: ['ejemplo'], color: 0, pinned: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
-    ];
-  }
-
-  updateGreeting();
-  renderAll();
-  renderSettings();
-  initIA();
-};
-
-const renderAll = () => {
-  renderDashboard();
-  const p = document.querySelector('.page.active');
-  const pid = p ? p.id.replace('page-','') : '';
-  if (pid==='habitos') renderHabitos();
-  if (pid==='tareas') renderTasks();
-  if (pid==='notas') renderNotas();
-  if (pid==='lectura') renderLectura();
-  if (pid==='notifs') renderNotifs();
-  if (pid==='logros') renderLogros();
-  if (pid==='breath') renderBreath();
-  if (pid==='stats') renderStats();
-};
-
-// ── NAVIGATION ────────────────────────────────────
-window.gp = (page) => {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
-  const pg=document.getElementById('page-'+page);
-  if(pg) pg.classList.add('active');
-  const tb=document.getElementById('tab-'+page);
-  if(tb) tb.classList.add('active');
-  if(page==='dashboard') renderDashboard();
-  if(page==='habitos') renderHabitos();
-  if(page==='tareas') renderTasks();
-  if(page==='notas') renderNotas();
-  if(page==='lectura') renderLectura();
-  if(page==='notifs') renderNotifs();
-  if(page==='logros') renderLogros();
-  if(page==='breath') renderBreath();
-  if(page==='stats') renderStats();
-  if(page==='ajustes') renderSettings();
-  if(page==='ia') initIA();
-  if(page==='admin' && isCreator()) loadAdminData();
-  document.getElementById('pc').scrollTop=0;
-};
-
-// ── TASKS MODULE ───────────────────────────────────
-let curTaskFilter = 'todas';
-let editTaskId = null;
-let subtaskFields = [];
-
-const taskDueBadge = (dateStr) => {
-  if (!dateStr) return '';
-  const due = new Date(dateStr + 'T00:00:00');
-  const now = new Date(); now.setHours(0,0,0,0);
-  const diff = Math.round((due - now) / 86400000);
-  if (diff < 0) return `<span class="task-date overdue">⚠ Vencida hace ${Math.abs(diff)}d</span>`;
-  if (diff === 0) return `<span class="task-date" style="color:var(--a4)">📅 Hoy</span>`;
-  if (diff === 1) return `<span class="task-date" style="color:var(--a)">📅 Mañana</span>`;
-  return `<span class="task-date">📅 ${dateStr.slice(5).replace('-','/')}</span>`;
-};
-
-const tagClass = (cat) => ({'work':'tag-work','personal':'tag-personal','health':'tag-health','learn':'tag-learn'}[cat]||'tag-work');
-const tagLabel = (cat) => ({'work':'💼 Trabajo','personal':'🏠 Personal','health':'💪 Salud','learn':'📚 Aprender'}[cat]||cat);
-
-window.renderTasks = () => {
-  const el = document.getElementById('task-list');
-  if (!el) return;
-  if (!S.tasks) S.tasks = [];
-  const td = today();
-  const f = curTaskFilter;
-
-  let list = [...S.tasks];
-  if (f === 'hoy') list = list.filter(t => t.date === td && !t.done);
-  else if (f === 'done') list = list.filter(t => t.done);
-  else if (f !== 'todas') list = list.filter(t => t.cat === f && !t.done);
-  else list = list.filter(t => !t.done);
-
-  const priOrder = {high:0,mid:1,low:2};
-  list.sort((a,b) => {
-    const pd = (priOrder[a.pri]||1) - (priOrder[b.pri]||1);
-    if (pd !== 0) return pd;
-    if (a.date && b.date) return a.date.localeCompare(b.date);
-    return 0;
-  });
-
-  if (!list.length) {
-    el.innerHTML = `<div class="tasks-empty"><div style="font-size:42px;margin-bottom:12px">${f==='done'?'🎉':'📭'}</div><div style="font-family:var(--fd);font-size:16px;font-weight:700;margin-bottom:6px">${f==='done'?'Sin tareas completadas':'Todo limpio'}</div><div style="font-size:12px;color:var(--m)">${f==='done'?'Completá tareas para verlas acá.':'No hay tareas pendientes aquí.'}</div></div>`;
     return;
   }
+  tv.textContent=fmt(rem);
+  const pct=Math.min(100,(rem/(12*3600000))*100);
+  if(rem<3600000){tv.className='timer-val danger';if(tf)tf.style.background='var(--red)';}
+  else if(rem<3*3600000){tv.className='timer-val warn';if(tf)tf.style.background='var(--gold2)';}
+  else{tv.className='timer-val';if(tf)tf.style.background='var(--cyan)';}
+  if(tf)tf.style.width=pct+'%';
+}
 
-  el.innerHTML = list.map(t => {
-    const subs = (t.subtasks||[]);
-    const doneSubs = subs.filter(s=>s.done).length;
-    const subsHtml = subs.length ? `<div class="subtask-list-view">${subs.slice(0,3).map(s=>`<div class="subtask-item"><div class="subtask-chk ${s.done?'done':''}" onclick="toggleSubtask('${t.id}','${s.id}',event)">${s.done?'✓':''}</div><span style="${s.done?'text-decoration:line-through;color:var(--m)':''}">${s.text}</span></div>`).join('')}${subs.length > 3 ? `<div style="font-size:10px;color:var(--m)">+${subs.length-3} más</div>`:''}</div>` : '';
+// ══════════════════════════════════════
+//  PENALTIES
+// ══════════════════════════════════════
+function assignPenalty(fails){
+  let p;
+  if(fails>=4)p={...CP[3],type:`${fails} DÍAS CONSECUTIVOS`,fails};
+  else if(fails>=2)p={...CP[Math.min(fails-1,3)],type:`${fails} DÍAS CONSECUTIVOS`,fails};
+  else if(Math.random()<0.2)p={...MP[Math.floor(Math.random()*MP.length)],type:'CASTIGO MENTAL',fails};
+  else p={...RP[Math.floor(Math.random()*RP.length)],type:'CASTIGO ALEATORIO',fails};
+  S.activePenalty=p;
+  S.totalPenalties=(S.totalPenalties||0)+1;
+}
+function showPO(){
+  const p=S.activePenalty;if(!p)return;
+  document.getElementById('poSub').textContent=p.fails>1?`${p.fails} días consecutivos sin entrenar`:'No completaste en 12 horas';
+  const pc=document.getElementById('poConsec');
+  if(p.fails>1){pc.style.display='block';pc.textContent=`⚠ FALLOS CONSECUTIVOS: ${p.fails} días`;}else pc.style.display='none';
+  document.getElementById('poEx').textContent=p.e;
+  document.getElementById('poDet').textContent=p.d;
+  document.getElementById('poAlt').textContent=p.a;
+  document.getElementById('penaltyOverlay').classList.add('show');
+  SFX.penalty();
+}
+function acceptPenalty(){document.getElementById('penaltyOverlay').classList.remove('show');toast('Castigo pendiente — completalo hoy','💀');}
+function completePenalty(){S.penaltyDone=true;S.activePenalty=null;S.xp+=30;S.consecutiveFails=0;save();document.getElementById('penaltyOverlay').classList.remove('show');SFX.check();checkRankUp();updateHeader();renderQL();updatePB();toast('+30 XP — Castigo completado','✅');}
+function updatePB(){
+  const el=document.getElementById('penaltyBanner'),tx=document.getElementById('pbText');
+  if(!el)return;
+  if(S.activePenalty&&!S.penaltyDone){el.style.display='flex';tx.textContent=`PENALTY QUEST — ${S.activePenalty.e}`;}
+  else el.style.display='none';
+}
 
-    return `<div class="task-row ${t.done?'done-task':''}"><div class="task-pri pri-${t.pri||'mid'}"></div><div class="task-chk ${t.done?'done':''}" onclick="toggleTask('${t.id}',event)">${t.done?'✓':''}</div><div class="task-body"><div class="task-title ${t.done?'done':''}">${t.name}</div><div class="task-meta-row"><span class="task-tag ${tagClass(t.cat)}">${tagLabel(t.cat)}</span>${t.time?`<span style="font-size:10px;color:var(--m)">⏱ ${t.time}</span>`:''}${taskDueBadge(t.date)}${subs.length?`<span style="font-size:10px;color:var(--m)">${doneSubs}/${subs.length} ✓</span>`:''}</div>${t.notes?`<div style="font-size:11px;color:var(--m);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.notes}</div>`:''}${subsHtml}</div><div class="task-actions"><div class="task-act-btn" onclick="openTaskSheet('${t.id}')">✎</div></div></div>`;
-  }).join('');
-};
+// ══════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════
+async function reqNotif(){
+  if(!('Notification'in window)){toast('No soportado en este navegador','⚠️');return;}
+  const p=await Notification.requestPermission();
+  S.notifGranted=(p==='granted');save();updateNotifUI();
+  if(p==='granted'){toast('Notificaciones activadas ✓','🔔');schedNotifs();}
+  else toast('Permiso denegado — activalo en Ajustes','⚠️');
+}
+function updateNotifUI(){
+  const perm='Notification'in window?Notification.permission:'none';
+  const ok=perm==='granted';
+  const btn=document.getElementById('notifBtn'),st=document.getElementById('notifStatus'),pr=document.getElementById('notifPrompt');
+  if(btn){btn.textContent=ok?'ACTIVO':'ACTIVAR';btn.className=ok?'notif-btn on':'notif-btn';}
+  if(st)st.textContent=`Estado: ${ok?'activo ✓':perm==='denied'?'denegado (ir a Ajustes)':'sin permiso'}`;
+  if(pr)pr.style.display=ok?'none':'flex';
+}
+function notify(title,body){
+  if(!('Notification'in window)||Notification.permission!=='granted')return;
+  try{new Notification(title,{body,icon:'./icon-192.png'});}catch(e){}
+}
+function schedNotifs(){
+  if(!S.missionStartTime||S.sessionDone)return;
+  const start=new Date(S.missionStartTime).getTime();
+  const w=start+9*3600000-Date.now(),d=start+11.5*3600000-Date.now();
+  if(w>0)setTimeout(()=>notify('⚠️ ASSASSIN PROTOCOL','Te quedan 3 horas para completar la misión.'),w);
+  if(d>0)setTimeout(()=>notify('💀 ÚLTIMA ADVERTENCIA','30 minutos para completar o recibirás castigo.'),d);
+}
 
-window.toggleTask = (id, e) => {
-  if (e) e.stopPropagation();
-  const t = (S.tasks||[]).find(x=>x.id===id);
-  if (!t) return;
-  t.done = !t.done;
-  if (t.done) { addXP(15); confetti(); toast('✅ ¡Tarea completada!','success'); }
-  scheduleSave();
-  renderTasks();
-};
+// ══════════════════════════════════════
+//  🔊 SOUND ENGINE
+// ══════════════════════════════════════
+const SFX = (() => {
+  let ctx=null,master=null,enabled=true;
+  function getCtx(){if(!ctx){ctx=new(window.AudioContext||window.webkitAudioContext)();master=ctx.createGain();master.gain.value=0.7;master.connect(ctx.destination);}if(ctx.state==='suspended')ctx.resume();return ctx;}
+  function osc(type,freq,t,dur,vol,dest){const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(dest||master);o.start(t);o.stop(t+dur+0.01);}
+  function slide(type,f1,f2,t,dur,vol,dest){const c=getCtx(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.linearRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(dest||master);o.start(t);o.stop(t+dur+0.01);}
+  function noise(t,dur,vol,fc){const c=getCtx(),buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const src=c.createBufferSource(),flt=c.createBiquadFilter(),g=c.createGain();flt.type='bandpass';flt.frequency.value=fc||1000;flt.Q.value=0.5;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);src.buffer=buf;src.connect(flt);flt.connect(g);g.connect(master);src.start(t);src.stop(t+dur);}
+  function mkReverb(wet){const c=getCtx(),cv=c.createConvolver(),len=c.sampleRate*1.5,buf=c.createBuffer(2,len,c.sampleRate);for(let ch=0;ch<2;ch++){const d=buf.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);}cv.buffer=buf;const g=c.createGain();g.gain.value=wet;cv.connect(g);g.connect(master);return cv;}
 
-window.toggleSubtask = (taskId, subId, e) => {
-  if (e) e.stopPropagation();
-  const t = (S.tasks||[]).find(x=>x.id===taskId);
-  if (!t || !t.subtasks) return;
-  const s = t.subtasks.find(x=>x.id===subId);
-  if (s) { s.done = !s.done; scheduleSave(); renderTasks(); }
-};
+  const sfx={
+    check(){if(!enabled)return;const c=getCtx(),t=c.currentTime;noise(t,0.02,0.15,5000);osc('square',580,t,0.04,0.08);osc('sine',880,t+0.05,0.15,0.1);osc('sine',1320,t+0.12,0.15,0.08);slide('sine',2000,3000,t+0.05,0.2,0.03);},
+    uncheck(){if(!enabled)return;const c=getCtx(),t=c.currentTime;noise(t,0.02,0.1,2000);slide('sine',880,440,t,0.12,0.06);},
+    questComplete(){if(!enabled)return;const c=getCtx(),t=c.currentTime,rv=mkReverb(0.5);
+      noise(t,0.3,0.35,200);noise(t,0.5,0.25,80);
+      [130,165,196,261].forEach(f=>{const o=c.createOscillator(),g=c.createGain(),dist=c.createWaveShaper(),curve=new Float32Array(256);for(let i=0;i<256;i++){const x=(i*2/256)-1;curve[i]=(Math.PI+200)*x/(Math.PI+200*Math.abs(x));}dist.curve=curve;o.type='sawtooth';o.frequency.value=f;g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.0001,t+1.2);o.connect(dist);dist.connect(g);g.connect(rv);o.start(t);o.stop(t+1.3);});
+      [{f:523,dt:0},{f:659,dt:0.15},{f:784,dt:0.3},{f:1047,dt:0.5},{f:1319,dt:0.7},{f:1047,dt:0.9}].forEach(({f,dt})=>{osc('sine',f,t+dt,0.25,0.12,rv);osc('triangle',f*2,t+dt,0.15,0.04,rv);});
+      [523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+1.1);g.gain.linearRampToValueAtTime(0.07-i*0.01,t+1.3);g.gain.exponentialRampToValueAtTime(0.0001,t+3.0);o.connect(g);g.connect(rv);o.start(t+1.1);o.stop(t+3.1);});
+      noise(t+1.0,1.5,0.18,8000);},
+    penalty(){if(!enabled)return;const c=getCtx(),t=c.currentTime,rv=mkReverb(0.4);
+      slide('sawtooth',55,45,t,2.0,0.18,rv);
+      for(let i=0;i<5;i++){const dt=i*0.22;osc('square',220,t+dt,0.15,0.14);osc('square',440,t+dt+0.08,0.08,0.09);}
+      [110,138,164].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(f,t+1.0);o.frequency.linearRampToValueAtTime(f*0.88,t+2.5);g.gain.setValueAtTime(0,t+1.0);g.gain.linearRampToValueAtTime(0.1,t+1.2);g.gain.exponentialRampToValueAtTime(0.0001,t+2.5);o.connect(g);g.connect(rv);o.start(t+1.0);o.stop(t+2.6);});
+      noise(t,0.1,0.45,400);noise(t+1.0,0.15,0.35,300);},
+    rankUp(){if(!enabled)return;const c=getCtx(),t=c.currentTime,rv=mkReverb(0.6);
+      noise(t,0.05,0.5,200);slide('sine',60,30,t,0.8,0.35,rv);noise(t,0.4,0.45,100);
+      slide('sawtooth',100,800,t+0.3,1.5,0.13,rv);slide('sine',200,1600,t+0.5,1.3,0.09,rv);
+      [196,247,294,370,440,554,659,880].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),dt=i*0.11+0.8;o.type=i%2===0?'triangle':'sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+dt);g.gain.linearRampToValueAtTime(0.08,t+dt+0.06);g.gain.exponentialRampToValueAtTime(0.0001,t+dt+0.5);o.connect(g);g.connect(rv);o.start(t+dt);o.stop(t+dt+0.6);});
+      [220,277,330,415,554,830].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type=i<3?'sine':'triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+2.0);g.gain.linearRampToValueAtTime(0.09-i*0.01,t+2.3);g.gain.exponentialRampToValueAtTime(0.0001,t+4.5);o.connect(g);g.connect(rv);o.start(t+2.0);o.stop(t+4.6);});
+      noise(t+2.0,2.5,0.13,10000);slide('sine',4000,8000,t+2.0,0.3,0.04);},
+    toggle(){enabled=!enabled;if(master)master.gain.value=enabled?0.7:0;return enabled;},
+    isEnabled(){return enabled;},
+  };
+  let unlocked=false;
+  function unlock(){if(unlocked)return;unlocked=true;getCtx();}
+  document.addEventListener('touchstart',unlock,{once:true,passive:true});
+  document.addEventListener('click',unlock,{once:true});
+  return sfx;
+})();
 
-window.addQuickTaskInline = () => {
-  const inp = document.getElementById('quick-task-inp');
-  const nm = inp ? inp.value.trim() : '';
-  if (!nm) return;
-  if (!S.tasks) S.tasks = [];
-  S.tasks.unshift({ id:uid(), name:nm, pri:'mid', cat:'personal', done:false, date:'', time:'1h', notes:'', subtasks:[], created:today() });
-  scheduleSave();
-  inp.value = '';
-  renderTasks();
-  toast('⚡ Tarea agregada','success');
-};
+// Track previous rank to detect rank-up
+let _prevRankIdx = -1;
 
-window.openTaskSheet = (id) => {
-  editTaskId = id || null;
-  const t = id ? (S.tasks||[]).find(x=>x.id===id) : null;
-  document.getElementById('sh-task-title').textContent = t ? '✎ Editar tarea' : '✦ Nueva tarea';
-  document.getElementById('task-nm').value    = t ? t.name  : '';
-  document.getElementById('task-pri').value   = t ? (t.pri||'mid') : 'mid';
-  document.getElementById('task-cat').value   = t ? (t.cat||'personal') : 'personal';
-  document.getElementById('task-date').value  = t ? (t.date||'') : '';
-  document.getElementById('task-time').value  = t ? (t.time||'1h') : '1h';
-  document.getElementById('task-notes').value = t ? (t.notes||'') : '';
-  const delBtn = document.getElementById('del-task-btn');
-  if (delBtn) delBtn.style.display = t ? 'block' : 'none';
-  subtaskFields = t ? (t.subtasks||[]).map(s=>({...s})) : [];
-  renderSubtaskFields();
-  document.getElementById('sh-task').classList.add('open');
-};
+function checkRankUp() {
+  const ri = getRankIdx();
+  if (_prevRankIdx >= 0 && ri > _prevRankIdx) {
+    setTimeout(() => SFX.rankUp(), 200);
+  }
+  _prevRankIdx = ri;
+}
 
-window.addSubtaskField = () => {
-  subtaskFields.push({ id:uid(), text:'', done:false });
-  renderSubtaskFields();
-};
-
-const renderSubtaskFields = () => {
-  const el = document.getElementById('sbt-list');
-  if (!el) return;
-  el.innerHTML = subtaskFields.map((s,i) => `<div class="sbt-row"><div class="subtask-chk ${s.done?'done':''}" onclick="subtaskFields[${i}].done=!subtaskFields[${i}].done;renderSubtaskFields()">${s.done?'✓':''}</div><input class="sbt-inp" value="${s.text}" placeholder="Subtarea..." oninput="subtaskFields[${i}].text=this.value"/><button class="sbt-del" onclick="subtaskFields.splice(${i},1);renderSubtaskFields()">✕</button></div>`).join('');
-};
-
-window.saveTask = () => {
-  const nm = document.getElementById('task-nm').value.trim();
-  if (!nm) { toast('Escribí el nombre de la tarea','warn'); return; }
-  if (!S.tasks) S.tasks = [];
-  const subs = subtaskFields.filter(s=>s.text.trim()).map(s=>({...s,text:s.text.trim()}));
-  if (editTaskId) {
-    const t = S.tasks.find(x=>x.id===editTaskId);
-    if (t) {
-      t.name     = nm;
-      t.pri      = document.getElementById('task-pri').value;
-      t.cat      = document.getElementById('task-cat').value;
-      t.date     = document.getElementById('task-date').value;
-      t.time     = document.getElementById('task-time').value;
-      t.notes    = document.getElementById('task-notes').value.trim();
-      t.subtasks = subs;
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+function init(){
+  load();
+  if(!S.startDate){S.startDate=todayStr();save();}
+  const td=todayStr();
+  if(S.currentDay!==td){
+    if(S.currentDay){
+      const prevId=DMAP[new Date(S.currentDay+'T12:00:00').getDay()];
+      const prev=getDay(prevId);
+      if(prev&&!prev.rest&&S.lastCompleted!==S.currentDay){
+        S.consecutiveFails=(S.consecutiveFails||0)+1;
+        assignPenalty(S.consecutiveFails);
+      } else if(S.lastCompleted===S.currentDay){S.consecutiveFails=0;}
     }
-    toast('✅ Tarea actualizada','success');
-  } else {
-    S.tasks.unshift({ id:uid(), name:nm, pri:document.getElementById('task-pri').value, cat:document.getElementById('task-cat').value, date:document.getElementById('task-date').value, time:document.getElementById('task-time').value, notes:document.getElementById('task-notes').value.trim(), subtasks:subs, done:false, created:today() });
-    addXP(5); toast('✦ Tarea creada','success');
+    S.currentDay=td;S.todayChecked={};S.sessionDone=false;S.penaltyDone=false;
+    if(!S.activePenalty)S.activePenalty=null;
+    const day=getDay(getTDid());
+    S.missionStartTime=(day&&!day.rest)?new Date().toISOString():null;
+    save();
   }
-  scheduleSave();
-  csh('sh-task');
-  renderTasks();
-};
-
-window.deleteTask = () => {
-  if (!editTaskId) return;
-  if (!confirm('¿Eliminar esta tarea?')) return;
-  S.tasks = (S.tasks||[]).filter(t=>t.id!==editTaskId);
-  scheduleSave(); csh('sh-task'); renderTasks();
-  toast('🗑 Tarea eliminada','info');
-};
-
-window.setTF = (f, el) => {
-  curTaskFilter = f;
-  document.querySelectorAll('#task-filters .fp').forEach(b=>b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderTasks();
-};
-
-// ── GREETING ──────────────────────────────────────
-const updateGreeting = () => {
-  const h=new Date().getHours();
-  let e='☀️', s='Empezá el día con energía.';
-  if(h<6){e='🌙';s='Madrugada. ¡Cuidate!';}
-  else if(h<12){e='☀️';s='Buenos días. ¡A construir hábitos!';}
-  else if(h<18){e='🌤';s='Buenas tardes. ¿Ya marcaste tus hábitos?';}
-  else{e='🌙';s='Buenas noches. ¿Cómo te fue hoy?';}
-  const ge=document.getElementById('gr-emoji');
-  const gs=document.getElementById('gr-sub');
-  if(ge) ge.textContent=e;
-  if(gs) gs.textContent=s;
-};
-
-// ── STREAKS ───────────────────────────────────────
-const getStreak = h => {
-  let s=0;
-  for(let i=0;i<365;i++){
-    const k=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
-    if(h.logs&&h.logs[k]) s++;
-    else if(i>0) break;
-  }
-  return s;
-};
-const getBest = h => {
-  const keys=Object.keys(h.logs||{}).filter(k=>h.logs[k]).sort();
-  if(!keys.length) return 0;
-  let b=1,c=1;
-  for(let i=1;i<keys.length;i++){
-    const diff=(new Date(keys[i])-new Date(keys[i-1]))/86400000;
-    if(diff===1){c++;b=Math.max(b,c);}else c=1;
-  }
-  return b;
-};
-const getWeekKeys = () => {
-  const keys=[],now=new Date(),dow=now.getDay(),mon=new Date(now);
-  mon.setDate(now.getDate()-((dow+6)%7));
-  for(let i=0;i<7;i++){
-    const d=new Date(mon); d.setDate(mon.getDate()+i);
-    keys.push(d.toISOString().slice(0,10));
-  }
-  return keys;
-};
-
-// ── HABIT ROW ─────────────────────────────────────
-const habitRow = (h, weekKeys, todayKey) => {
-  const streak=getStreak(h);
-  const dl=['L','M','X','J','V','S','D'];
-  const days=weekKeys.map((k,i)=>{
-    const done=h.logs&&h.logs[k];
-    const isT=k===todayKey;
-    const cls=['hd',done?'done':'',isT&&!done?'today':''].join(' ').trim();
-    return `<div class="${cls}" onclick="window.toggleHabit('${h.id}','${k}')">${done?'✓':dl[i]}</div>`;
-  }).join('');
-  return `<div class="hr">
-    <div class="hem">${h.emoji||'⭐'}</div>
-    <div class="hinfo">
-      <div class="hnm">${h.name}</div>
-      ${h.goal?`<div class="hsub">${h.goal}</div>`:''}
-      <div class="hwk">${days}</div>
-    </div>
-    <div class="hstr-wrap">
-      <div class="hstr">${streak>0?'🔥'+streak:'–'}</div>
-      <div class="hstr-lbl">${streak>0?'racha':''}</div>
-    </div>
-    <button class="icon-btn" style="margin-left:4px;font-size:12px;width:30px;height:30px" onclick="window.openHabit('${h.id}')">✎</button>
-  </div>`;
-};
-
-window.toggleHabit = (id, dateKey) => {
-  const h=S.habits.find(x=>x.id===id);
-  if(!h) return;
-  if(!h.logs) h.logs={};
-  h.logs[dateKey]=!h.logs[dateKey];
-  if(h.logs[dateKey]){ addXP(10); confetti(); toast('🔥 ¡'+h.name+' completado!','success'); }
-  scheduleSave();
-  renderAll();
-};
-
-const renderHabitos = () => {
-  const wk=getWeekKeys(), td=today(), f=S.curHF||'todos';
-  const list=f==='todos'?S.habits:S.habits.filter(h=>h.area===f);
-  const el=document.getElementById('hpc');
-  if(!el) return;
-  if(!list.length){
-    el.innerHTML=`<div class="empty"><div class="ei">🌱</div><div class="et">Sin hábitos aquí</div><div class="ed">Agregá uno con el botón de abajo.</div></div>`;
-    return;
-  }
-  el.innerHTML=list.map(h=>habitRow(h,wk,td)).join('');
-};
-
-window.setHF = (f, el) => {
-  S.curHF=f;
-  document.querySelectorAll('#hab-filters .fp').forEach(b=>b.classList.remove('active'));
-  if(el) el.classList.add('active');
-  renderHabitos();
-};
-
-// ── DASHBOARD ─────────────────────────────────────
-const renderDashboard = () => {
-  renderFlowScore(); renderStatsRow(); renderProgressRing(); renderDashHabits();
-};
-
-const lvlName = l => ['Semilla','Brotando','En Forma','Constante','Imparable','Legendario','Máquina'][Math.min(l-1,6)];
-
-const renderFlowScore = () => {
-  const lvl=S.level||1, xp=S.xp||0, xpN=lvl*100;
-  const pct=Math.min(100,Math.round((xp%xpN)/xpN*100));
-  const avs=['🌱','⚡','🔥','💎','🚀','🌟','👑'];
-  const el=document.getElementById('gs-card');
-  if(!el) return;
-  el.innerHTML=`<div class="gs-avatar">${avs[Math.min(lvl-1,6)]}</div>
-    <div class="gs-info">
-      <div class="gs-name">Flow Score · ${CUR_USER||''}</div>
-      <div class="gs-score">${xp} XP</div>
-      <div class="gs-level">Nivel ${lvl} — ${lvlName(lvl)}</div>
-      <div class="gs-bar"><div class="gs-fill" style="width:${pct}%"></div></div>
-      <div class="gs-xp">${xp%xpN} / ${xpN} XP para nivel ${lvl+1}</div>
-    </div>`;
-};
-
-const addXP = n => {
-  S.xp=(S.xp||0)+n;
-  const need=(S.level||1)*100;
-  if(S.xp>=need*(S.level||1)){ S.level=(S.level||1)+1; toast('🎉 ¡Nivel '+S.level+'! '+lvlName(S.level),'success'); }
-};
-
-const renderStatsRow = () => {
-  const td=today();
-  const done=S.habits.filter(h=>h.logs&&h.logs[td]).length;
-  const best=S.habits.reduce((a,h)=>Math.max(a,getStreak(h)),0);
-  const el=document.getElementById('sr');
-  if(!el) return;
-  el.innerHTML=`
-    <div class="sc c1"><div class="si">✅</div><div class="sv c1">${done}/${S.habits.length}</div><div class="sl">Hoy</div></div>
-    <div class="sc c2"><div class="si">🔥</div><div class="sv c2">${best}</div><div class="sl">Mejor racha</div></div>
-    <div class="sc c3"><div class="si">⭐</div><div class="sv c3">${S.xp||0}</div><div class="sl">XP total</div></div>
-    <div class="sc c4"><div class="si">🏆</div><div class="sv c4">${S.level||1}</div><div class="sl">Nivel</div></div>`;
-};
-
-const renderProgressRing = () => {
-  const td=today(), tot=S.habits.length, done=S.habits.filter(h=>h.logs&&h.logs[td]).length;
-  const pct=tot?Math.round(done/tot*100):0;
-  const r=30, circ=2*Math.PI*r, stroke=circ-(pct/100)*circ;
-  const msg=pct>=100?'🎉 ¡Día perfecto! Todos completados.':pct>=50?'💪 ¡Vas bien! Seguí así.':done===0?'🌅 ¡Empezá tu racha hoy!':'⚡ Faltan '+(tot-done)+' hábito'+(tot-done>1?'s':'')+'.';
-  const el=document.getElementById('prg');
-  if(!el) return;
-  el.innerHTML=`<div class="prw">
-    <div class="rb">
-      <svg width="72" height="72" viewBox="0 0 72 72">
-        <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--b)" stroke-width="6"/>
-        <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--a)" stroke-width="6"
-          stroke-linecap="round" stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${stroke.toFixed(2)}"
-          style="transition:stroke-dashoffset .8s ease"/>
-      </svg>
-      <div class="rt">${pct}%</div>
-    </div>
-    <div class="ri"><div class="rti">${done} de ${tot} hábitos</div><div class="rts">${msg}</div></div>
-  </div>`;
-};
-
-const renderDashHabits = () => {
-  const wk=getWeekKeys(), td=today(), el=document.getElementById('dh');
-  if(!el) return;
-  if(!S.habits.length){
-    el.innerHTML=`<div class="empty"><div class="ei">🌱</div><div class="et">Sin hábitos</div></div>`;
-    return;
-  }
-  el.innerHTML=S.habits.slice(0,6).map(h=>habitRow(h,wk,td)).join('');
-};
-
-// ── NOTES & WIKI MODULE (renderNotas) ───────────────────────────────
-let noteFilter  = 'todas';
-let editNoteId  = null;
-let notePreview = false;
-let notePinned  = false;
-let noteColor   = 0;
-let noteAutoSaveTimer = null;
-
-const notesInit = () => {
-  if (!S.notes)        S.notes        = [];
-  if (!S.noteFolders)  S.noteFolders  = ['General'];
-};
-
-window.renderNotas = () => {
-  notesInit();
-  renderNotesList();
-  renderNotesStats();
-};
-
-const renderNotesStats = () => {
-  const el = document.getElementById('notes-stats-row');
-  if (!el) return;
-  const n = S.notes;
-  const words = n.reduce((s,x)=>s+(x.body||'').split(/\s+/).filter(Boolean).length, 0);
-  const tags  = [...new Set(n.flatMap(x=>(x.tags||[])))].length;
-  el.innerHTML = `
-    <div class="notes-stat"><div class="notes-stat-val">${n.length}</div><div class="notes-stat-lbl">Notas</div></div>
-    <div class="notes-stat"><div class="notes-stat-val">${tags}</div><div class="notes-stat-lbl">Tags</div></div>
-    <div class="notes-stat"><div class="notes-stat-val">${words>999?Math.round(words/1000)+'k':words}</div><div class="notes-stat-lbl">Palabras</div></div>`;
-};
-
-const renderFolderRow = () => {
-  const el = document.getElementById('folder-row');
-  if (!el) return;
-  const folders = ['todas', ...(S.noteFolders||[])];
-  const counts  = {};
-  (S.notes||[]).forEach(n => { counts[n.folder||'General'] = (counts[n.folder||'General']||0)+1; });
-  el.innerHTML = folders.map(f => {
-    const label = f === 'todas' ? 'Todas' : f;
-    const cnt   = f === 'todas' ? S.notes.length : (counts[f]||0);
-    return `<button class="folder-chip ${noteFilter===f?'active':''}" onclick="setNoteFolder('${f}',this)">
-      ${f==='todas'?'📂':''} ${label} <span class="fc-count">${cnt}</span>
-    </button>`;
-  }).join('');
-};
-
-window.setNoteFolder = (f, el) => {
-  noteFilter = f;
-  document.querySelectorAll('.folder-chip').forEach(b=>b.classList.remove('active'));
-  if (el) el.classList.add('active');
-  renderNotesList();
-};
-
-window.filterNotes = () => { renderNotesList(); };
-
-const renderNotesList = () => {
-  const el = document.getElementById('notes-list');
-  if (!el) return;
-  notesInit();
-  const q = (document.getElementById('notes-search-inp')?.value||'').toLowerCase().trim();
-  let list = [...S.notes];
-  if (noteFilter !== 'todas') list = list.filter(n=>(n.folder||'General')===noteFilter);
-  if (q) list = list.filter(n =>
-    (n.title||'').toLowerCase().includes(q) ||
-    (n.body||'').toLowerCase().includes(q)  ||
-    (n.tags||[]).some(t=>t.toLowerCase().includes(q))
-  );
-  list.sort((a,b) => (b.pinned?1:0)-(a.pinned?1:0) || new Date(b.updatedAt||b.createdAt||0)-new Date(a.updatedAt||a.createdAt||0));
-
-  if (!list.length) {
-    el.innerHTML = `<div class="empty"><div class="ei">📝</div><div class="et">${q?'Sin resultados':'Sin notas'}</div><div class="ed">${q?'Probá con otro término.':'Tocá ✦ para crear tu primera nota.'}</div></div>`;
-    return;
-  }
-
-  el.innerHTML = list.map(n => {
-    const excerpt = (n.body||'').replace(/[#*`>\-_\[\]]/g,' ').replace(/\s+/g,' ').trim().slice(0,120);
-    const tagsHtml = (n.tags||[]).slice(0,3).map(t=>`<span class="note-tag">#${t}</span>`).join('');
-    const d = new Date(n.updatedAt||n.createdAt||Date.now());
-    const dateStr = `${d.getDate()}/${d.getMonth()+1}`;
-    return `<div class="note-card clr-${n.color||0} ${n.pinned?'pinned-note':''}" onclick="openNoteEditor('${n.id}')">
-      <div class="note-card-head">
-        ${n.pinned?'<div class="note-pin-icon">📌</div>':''}
-        <div class="note-title">${n.title||'Sin título'}</div>
-      </div>
-      ${excerpt?`<div class="note-excerpt">${excerpt}</div>`:''}
-      <div class="note-meta-row">
-        ${tagsHtml}
-        <span class="note-date">${dateStr}</span>
-      </div>
-      <div class="note-card-actions">
-        <button class="note-edit-btn" onclick="openNoteEditor('${n.id}'); event.stopPropagation()" title="Editar">✎</button>
-        <button class="note-del-btn" onclick="deleteNote('${n.id}'); event.stopPropagation()" title="Eliminar">🗑</button>
-      </div>
-    </div>`;
-  }).join('');
-};
-
-window.openNoteEditor = (id) => {
-  notesInit();
-  editNoteId  = id || null;
-  const n     = id ? S.notes.find(x=>x.id===id) : null;
-  notePinned  = n?.pinned || false;
-  noteColor   = n?.color  || 0;
-  notePreview = false;
-
-  document.getElementById('note-title-inp').value = n?.title || '';
-  document.getElementById('note-body-inp').value  = n?.body  || '';
-  document.getElementById('note-tags-inp').value  = (n?.tags||[]).join(', ');
-
-  const sel = document.getElementById('note-folder-sel');
-  if (sel) {
-    sel.innerHTML = (S.noteFolders||['General']).map(f=>`<option value="${f}" ${(n?.folder||'General')===f?'selected':''}>${f}</option>`).join('');
-  }
-  document.querySelectorAll('.note-color-opt').forEach(el => el.classList.toggle('sel', parseInt(el.dataset.c)===noteColor));
-  document.getElementById('ned-pin-btn').style.opacity = notePinned ? '1' : '.5';
-  document.getElementById('ned-del-btn').style.display = id ? 'flex' : 'none';
-
-  document.getElementById('note-preview-pane').style.display = 'none';
-  document.getElementById('note-body-inp').style.display     = 'block';
-  document.getElementById('ned-preview-btn').classList.remove('active-btn');
-
-  document.getElementById('note-editor-overlay').style.display = 'flex';
-};
-
-window.closeNoteEditor = () => {
-  saveCurrentNote();
-  document.getElementById('note-editor-overlay').style.display = 'none';
-  editNoteId = null;
-  renderNotas();
-};
-
-window.onNoteInput = () => {
-  if (notePreview) updateNotePreview();
-  clearTimeout(noteAutoSaveTimer);
-  noteAutoSaveTimer = setTimeout(saveCurrentNote, 2000);
-};
-
-window.saveCurrentNote = () => {
-  notesInit();
-  const title  = document.getElementById('note-title-inp').value.trim();
-  const body   = document.getElementById('note-body-inp').value;
-  const folder = 'General';
-  const tagsRaw= document.getElementById('note-tags-inp').value;
-  const tags   = tagsRaw.split(',').map(t=>t.trim().replace(/^#/,'')).filter(Boolean);
-  if (!title && !body) return;
-
-  const now = new Date().toISOString();
-  if (editNoteId) {
-    const n = S.notes.find(x=>x.id===editNoteId);
-    if (n) { n.title=title||'Sin título'; n.body=body; n.folder='General'; n.tags=tags; n.color=noteColor; n.pinned=notePinned; n.updatedAt=now; }
-  } else {
-    const newNote = { id:uid(), title:title||'Sin título', body, folder, tags, color:noteColor, pinned:notePinned, createdAt:now, updatedAt:now };
-    S.notes.unshift(newNote);
-    editNoteId = newNote.id;
-    document.getElementById('ned-del-btn').style.display = 'flex';
-  }
-  scheduleSave();
-};
-
-window.deleteNote = (id) => {
-  if (!confirm('¿Eliminar esta nota?')) return;
-  S.notes = S.notes.filter(n => n.id !== id);
-  scheduleSave();
-  renderNotas();
-  toast('🗑 Nota eliminada','info');
-};
-
-window.toggleNotePin = () => {
-  notePinned = !notePinned;
-  document.getElementById('ned-pin-btn').style.opacity = notePinned ? '1' : '.5';
-  saveCurrentNote();
-};
-
-window.toggleNotePreview = () => {
-  notePreview = !notePreview;
-  const prev = document.getElementById('note-preview-pane');
-  const ed   = document.getElementById('note-body-inp');
-  const btn  = document.getElementById('ned-preview-btn');
-  if (notePreview) {
-    updateNotePreview();
-    prev.style.display = 'block';
-    ed.style.flex      = '1';
-    btn.classList.add('active-btn');
-  } else {
-    prev.style.display = 'none';
-    btn.classList.remove('active-btn');
-  }
-};
-
-const updateNotePreview = () => {
-  const prev = document.getElementById('note-preview-pane');
-  if (!prev || !notePreview) return;
-  const body = document.getElementById('note-body-inp').value;
-  try {
-    prev.innerHTML = typeof marked !== 'undefined' ? marked.parse(body) : body.replace(/\n/g,'<br>');
-    prev.querySelectorAll('li').forEach(li => {
-      if (li.innerHTML.startsWith('[ ]')) li.innerHTML = li.innerHTML.replace('[ ]','<input type="checkbox" onclick="this.parentNode.querySelector(\'s,span\')&&void 0">');
-      if (li.innerHTML.startsWith('[x]')||li.innerHTML.startsWith('[X]')) li.innerHTML = li.innerHTML.replace(/\[x\]/i,'<input type="checkbox" checked>');
-    });
-  } catch(e) { prev.textContent = body; }
-};
-
-window.selNoteColor = (c, el) => {
-  noteColor = c;
-  document.querySelectorAll('.note-color-opt').forEach(x=>x.classList.remove('sel'));
-  if (el) el.classList.add('sel');
-};
-
-window.mdInsert = (before, after, placeholder) => {
-  const ta  = document.getElementById('note-body-inp');
-  const s   = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.slice(s, e) || placeholder;
-  ta.value  = ta.value.slice(0,s) + before + sel + after + ta.value.slice(e);
-  ta.selectionStart = s + before.length;
-  ta.selectionEnd   = s + before.length + sel.length;
-  ta.focus();
-  onNoteInput();
-};
-
-window.mdInsertLine = (prefix) => {
-  const ta  = document.getElementById('note-body-inp');
-  const s   = ta.selectionStart;
-  const lineStart = ta.value.lastIndexOf('\n', s-1) + 1;
-  ta.value  = ta.value.slice(0,lineStart) + prefix + ta.value.slice(lineStart);
-  ta.selectionStart = ta.selectionEnd = lineStart + prefix.length;
-  ta.focus();
-  onNoteInput();
-};
-
-window.mdInsertLink = () => {
-  const url = prompt('URL del enlace:','https://');
-  if (!url) return;
-  mdInsert('[',']('+url+')','texto del enlace');
-};
-
-window.openFolderSheet = () => {
-  notesInit();
-  renderFolderListSheet();
-  document.getElementById('sh-folder').classList.add('open');
-};
-
-const renderFolderListSheet = () => {
-  const el = document.getElementById('folder-list-sh');
-  if (!el) return;
-  el.innerHTML = (S.noteFolders||[]).map((f,i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b)">
-      <span style="font-size:13px;flex:1">📁 ${f}</span>
-      ${i > 0 ? `<button onclick="deleteFolder('${f}')" style="font-size:11px;color:var(--m2);background:none;border:none;cursor:pointer">✕</button>` : ''}
-    </div>`).join('');
-};
-
-window.addFolder = () => {
-  const inp = document.getElementById('new-folder-inp');
-  const name = inp?.value.trim();
-  if (!name) return;
-  notesInit();
-  if (!S.noteFolders.includes(name)) {
-    S.noteFolders.push(name);
-    scheduleSave();
-    inp.value = '';
-    renderFolderListSheet();
-    renderFolderRow();
-    toast('📁 Carpeta creada','success');
-  } else { toast('Esa carpeta ya existe','warn'); }
-};
-
-window.deleteFolder = (name) => {
-  if (!confirm(`¿Eliminar carpeta "${name}"? Las notas se moverán a General.`)) return;
-  S.noteFolders = S.noteFolders.filter(f=>f!==name);
-  S.notes.forEach(n => { if (n.folder===name) n.folder='General'; });
-  scheduleSave(); renderFolderListSheet(); renderFolderRow(); renderNotesList();
-};
-
-// ── STATS ─────────────────────────────────────────
-const renderStats = () => {
-  const td=today();
-  const done=S.habits.filter(h=>h.logs&&h.logs[td]).length;
-  const allLogs=S.habits.flatMap(h=>Object.values(h.logs||{}).filter(Boolean));
-  const best=S.habits.reduce((a,h)=>Math.max(a,getBest(h)),0);
-  const top=document.getElementById('stats-top');
-  if(top) top.innerHTML=`
-    <div class="hs-cell"><div class="hs-val">${done}/${S.habits.length}</div><div class="hs-lbl">Hoy</div></div>
-    <div class="hs-cell"><div class="hs-val">${allLogs.length}</div><div class="hs-lbl">Total logs</div></div>
-    <div class="hs-cell"><div class="hs-val">${best}🔥</div><div class="hs-lbl">Mejor racha</div></div>`;
-  const wk=getWeekKeys();
-  const labs=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-  const tots=wk.map(k=>S.habits.filter(h=>h.logs&&h.logs[k]).length);
-  const maxV=Math.max(...tots,1);
-  const wc=document.getElementById('week-chart');
-  if(wc) wc.innerHTML=`<div style="font-family:var(--fd);font-size:14px;font-weight:700;margin-bottom:14px">Hábitos por día</div>
-    <div class="bar-chart">${tots.map((v,i)=>`
-      <div class="bar-w">
-        <div class="bar-val">${v}</div>
-        <div class="bar" style="height:${Math.max(3,Math.round(v/maxV*68))}px"></div>
-        <div class="bar-lbl">${labs[i]}</div>
-      </div>`).join('')}
-    </div>`;
-  const sl=document.getElementById('streaks-list');
-  if(sl){
-    const sorted=[...S.habits].map(h=>({...h,streak:getStreak(h),best:getBest(h)})).sort((a,b)=>b.streak-a.streak);
-    sl.innerHTML=sorted.map(h=>`
-      <div class="hr">
-        <div class="hem">${h.emoji}</div>
-        <div class="hinfo">
-          <div class="hnm">${h.name}</div>
-          <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
-            <span class="streak-badge">🔥 ${h.streak} días</span>
-            <span class="streak-badge" style="background:rgba(124,109,250,.1);color:var(--a);border-color:rgba(124,109,250,.2)">🏆 mejor: ${h.best}</span>
-          </div>
-        </div>
-      </div>`).join('');
-  }
-  const hm=document.getElementById('heatmap-grid');
-  if(hm){
-    const cells=[];
-    for(let i=27;i>=0;i--){
-      const k=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
-      const cnt=S.habits.filter(h=>h.logs&&h.logs[k]).length;
-      const pct=cnt/(S.habits.length||1);
-      let cls='hm';
-      if(pct>0.75) cls+=' d4';
-      else if(pct>0.5) cls+=' d3';
-      else if(pct>0.25) cls+=' d2';
-      else if(cnt>0) cls+=' d1';
-      cells.push(`<div class="${cls}" title="${k}: ${cnt}/${S.habits.length}"></div>`);
-    }
-    hm.innerHTML=cells.join('');
-  }
-};
-
-// ── HABIT CRUD ─────────────────────────────────────
-let editHId=null;
-window.openHabit = (id) => {
-  editHId=id||null;
-  const h=id?S.habits.find(x=>x.id===id):null;
-  document.getElementById('sh-h-title').textContent=h?'✎ Editar hábito':'🔥 Nuevo hábito';
-  document.getElementById('h-nm').value=h?h.name:'';
-  document.getElementById('h-em').value=h?h.emoji:'';
-  document.getElementById('h-ar').value=h?h.area:'salud';
-  document.getElementById('h-fr').value=h?h.freq:'daily';
-  document.getElementById('h-goal').value=h?(h.goal||''):'';
-  const delBtn=document.getElementById('del-habit-btn');
-  if(delBtn) delBtn.style.display=h?'block':'none';
-  document.getElementById('sh-h').classList.add('open');
-};
-
-window.saveHabit = () => {
-  const nm=document.getElementById('h-nm').value.trim();
-  if(!nm){ toast('Escribí el nombre del hábito','warn'); return; }
-  if(editHId){
-    const h=S.habits.find(x=>x.id===editHId);
-    if(h){
-      h.name=nm;
-      h.emoji=document.getElementById('h-em').value.trim()||'⭐';
-      h.area=document.getElementById('h-ar').value;
-      h.freq=document.getElementById('h-fr').value;
-      h.goal=document.getElementById('h-goal').value.trim();
-    }
-    toast('✅ Hábito actualizado','success');
-  } else {
-    S.habits.push({id:uid(),name:nm,emoji:document.getElementById('h-em').value.trim()||'⭐',
-      area:document.getElementById('h-ar').value,freq:document.getElementById('h-fr').value,
-      goal:document.getElementById('h-goal').value.trim(),logs:{},created:today()});
-    addXP(20); toast('🔥 Hábito creado','success');
-  }
-  scheduleSave();
-  csh('sh-h');
-  renderAll();
-};
-
-window.deleteHabit = () => {
-  if(!editHId) return;
-  if(!confirm('¿Eliminar este hábito? Se perderán todos sus registros.')) return;
-  S.habits=S.habits.filter(h=>h.id!==editHId);
-  scheduleSave(); csh('sh-h'); renderAll();
-  toast('🗑 Hábito eliminado','info');
-};
-
-// ── SETTINGS ──────────────────────────────────────
-const renderSettings = () => {
-  const el=document.getElementById('settc');
-  if(!el) return;
-  const themes=[
-    ['','linear-gradient(135deg,#7c6dfa,#fa6d8f)','Morado'],
-    ['th-green','linear-gradient(135deg,#22c55e,#6dfac4)','Verde'],
-    ['th-pink','linear-gradient(135deg,#f472b6,#fb923c)','Rosa'],
-    ['th-cyan','linear-gradient(135deg,#22d3ee,#6dfac4)','Cyan'],
-    ['th-orange','linear-gradient(135deg,#f97316,#fac46d)','Naranja'],
-    ['th-red','linear-gradient(135deg,#ef4444,#fac46d)','Rojo'],
-    ['light','linear-gradient(135deg,#f0f0fa,#ddddf0)','Claro'],
-  ];
-  el.innerHTML=`
-    <div style="font-family:var(--fd);font-size:12px;color:var(--m);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Cuenta</div>
-    <div class="ss-group">
-      <div class="ss-item">
-        <div class="ss-ic" style="background:rgba(124,109,250,.12)">👤</div>
-        <div class="ss-inf"><div class="ss-lb" style="display:flex;align-items:center;gap:8px">@${CUR_USER||''} ${isCreator()?'<span class="creator-badge"><span class="creator-crown">👑</span> CREADOR</span>':''}</div><div class="ss-ds">${S.name||''} · Nivel ${S.level||1} · ${S.xp||0} XP</div></div>
-      </div>
-      ${isCreator()?`<div class="ss-item" onclick="window.gp('admin')"><div class="ss-ic" style="background:linear-gradient(135deg,rgba(250,196,109,.2),rgba(250,109,143,.15))">👑</div><div class="ss-inf"><div class="ss-lb">Panel Admin</div><div class="ss-ds">Ver estadísticas globales</div></div><div class="ss-arr">›</div></div>`:''}
-      <div class="ss-item" onclick="window.doLogout()">
-        <div class="ss-ic" style="background:rgba(250,109,143,.12)">🚪</div>
-        <div class="ss-inf"><div class="ss-lb">Cerrar sesión</div><div class="ss-ds">Salir de esta cuenta</div></div>
-        <div class="ss-arr">›</div>
-      </div>
-    </div>
-    <div style="font-family:var(--fd);font-size:12px;color:var(--m);text-transform:uppercase;letter-spacing:.1em;margin:16px 0 8px">Apariencia</div>
-    <div class="ss-group">
-      <div class="tp-row">
-        ${themes.map(([t,c,n])=>`<div class="tpi ${S.theme===t?'sel':''}" onclick="window.applyTheme('${t}',this)" title="${n}"><div class="tpin" style="background:${c}"></div></div>`).join('')}
-      </div>
-    </div>
-    <div style="font-family:var(--fd);font-size:12px;color:var(--m);text-transform:uppercase;letter-spacing:.1em;margin:16px 0 8px">Datos</div>
-    <div class="ss-group">
-      <div class="ss-item" onclick="window.exportData()">
-        <div class="ss-ic" style="background:rgba(109,250,196,.12)">📤</div>
-        <div class="ss-inf"><div class="ss-lb">Exportar datos</div><div class="ss-ds">Descargá un backup JSON</div></div>
-        <div class="ss-arr">›</div>
-      </div>
-    </div>
-    <div style="text-align:center;padding:20px 0 8px;font-size:11px;color:var(--m2)">FlowEX v2.0 · Hecho con ❤️</div>`;
-};
-
-window.applyTheme = (t, el) => {
-  S.theme=t; document.body.className=t; scheduleSave();
-  document.querySelectorAll('.tpi').forEach(x=>x.classList.remove('sel'));
-  if(el) el.classList.add('sel');
-  toast('🎨 Tema aplicado','success');
-};
-
-
-// ── ADMIN PANEL (NULVEC only) ──────────────────
-window.loadAdminData = async () => {
-  if (!isCreator()) return;
-  const listEl = document.getElementById('admin-users-list');
-  const globEl = document.getElementById('admin-globals');
-  if (!listEl) return;
-  listEl.innerHTML = '<div style="text-align:center;padding:30px"><div class="admin-spin"></div><div style="font-size:13px;color:var(--m)">Cargando usuarios...</div></div>';
-  try {
-    const snap = await getDocs(collection(db, 'users'));
-    const users = [];
-    snap.forEach(d => {
-      const data = d.data();
-      if (d.id !== 'nulvec' || true) users.push({ username: d.id, ...data });
-    });
-    // Sort by XP desc
-    users.sort((a,b) => (b.xp||0) - (a.xp||0));
-
-    // Global stats
-    const totalUsers = users.length;
-    const totalHabits = users.reduce((s,u) => s + (u.habits?.length||0), 0);
-    const totalLogs = users.reduce((s,u) => {
-      const h = u.habits || [];
-      return s + h.reduce((hs,hab) => hs + Object.values(hab.logs||{}).filter(Boolean).length, 0);
-    }, 0);
-    if (globEl) globEl.innerHTML = `
-      <div class="global-stat"><div class="global-stat-val">${totalUsers}</div><div class="global-stat-lbl">Usuarios</div></div>
-      <div class="global-stat"><div class="global-stat-val">${totalHabits}</div><div class="global-stat-lbl">Hábitos</div></div>
-      <div class="global-stat"><div class="global-stat-val">${totalLogs}</div><div class="global-stat-lbl">Logs totales</div></div>`;
-
-    // User cards
-    if (!users.length) { listEl.innerHTML='<div class="empty"><div class="ei">👥</div><div class="et">Sin usuarios</div></div>'; return; }
-    listEl.innerHTML = users.map(u => {
-      const initial = (u.name||u.username||'?')[0].toUpperCase();
-      const habits = u.habits || [];
-      const td = new Date().toISOString().slice(0,10);
-      const doneToday = habits.filter(h => h.logs&&h.logs[td]).length;
-      const totalLogsU = habits.reduce((s,h)=>s+Object.values(h.logs||{}).filter(Boolean).length,0);
-      const bestStreak = habits.reduce((best,h) => {
-        let s=0;
-        for(let i=0;i<365;i++){
-          const k=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
-          if(h.logs&&h.logs[k]) s++; else if(i>0) break;
-        }
-        return Math.max(best,s);
-      }, 0);
-      const isThisCreator = u.username === 'nulvec';
-      return `<div class="user-card">
-        <div class="user-card-top">
-          <div class="user-avatar" style="${isThisCreator?'background:linear-gradient(135deg,var(--a4),var(--a2))':''}">
-            ${isThisCreator?'👑':initial}
-          </div>
-          <div class="user-info">
-            <div class="user-name">
-              ${u.name||u.username}
-              ${isThisCreator?'<span class="creator-badge" style="margin-left:6px"><span class="creator-crown">👑</span> CREADOR</span>':''}
-            </div>
-            <div class="user-meta">@${u.username} · Nivel ${u.level||1} · ${u.xp||0} XP</div>
-          </div>
-        </div>
-        <div class="user-stats-row">
-          <div class="user-stat"><div class="user-stat-val">${habits.length}</div><div class="user-stat-lbl">Hábitos</div></div>
-          <div class="user-stat"><div class="user-stat-val">${doneToday}/${habits.length}</div><div class="user-stat-lbl">Hoy</div></div>
-          <div class="user-stat"><div class="user-stat-val">${bestStreak}🔥</div><div class="user-stat-lbl">Racha</div></div>
-          <div class="user-stat"><div class="user-stat-val">${totalLogsU}</div><div class="user-stat-lbl">Logs</div></div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    listEl.innerHTML = '<div class="empty"><div class="ei">⚠️</div><div class="et">Error al cargar</div><div class="ed">Revisá tu conexión o las reglas de Firestore.</div></div>';
-    console.error(e);
-  }
-};
-
-window.doLogout = () => {
-  if(!confirm('¿Cerrar sesión?')) return;
-  if(unsubSnapshot) unsubSnapshot();
-  clearSession();
-  CUR_USER=null; S={name:'',theme:'',xp:0,level:1,habits:[],notes:[],curHF:'todos'};
-  document.body.className='';
-  loginPin=''; regPin='';
-  updatePinDisplay('login',''); updatePinDisplay('reg','');
-  document.getElementById('login-user').value='';
-  document.getElementById('login-err').textContent='';
-  document.getElementById('screen-app').classList.remove('active');
-  document.getElementById('screen-app').style.display='none';
-  document.getElementById('screen-auth').classList.add('active');
-  document.getElementById('screen-auth').style.display='flex';
-  switchAuthTab('login');
-};
-
-window.exportData = () => {
-  const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(b);
-  a.download='flowex-'+CUR_USER+'-'+today()+'.json';
-  a.click();
-  toast('📤 Datos exportados','success');
-};
-
-// ── IA ─────────────────────────────────────────────
-let iaHist=[];
-const initIA = () => {
-  const el=document.getElementById('ia-msgs');
-  if(!el||el.children.length>0) return;
-  iaHist=[];
-  appendMsg('bot','¡Hola '+(S.name||CUR_USER||'amigo')+'! 👋 Soy tu coach de hábitos. Puedo analizar tu progreso, darte consejos y motivarte. ¿Qué querés saber?');
-  renderQRs(['¿Cómo voy esta semana?','¿Cuál es mi mejor racha?','Dame motivación','¿Qué hábito mejorar?']);
-};
-
-const renderQRs = qs => {
-  const el=document.getElementById('ia-qrs');
-  if(el) el.innerHTML=qs.map(q=>`<button class="iaqr" onclick="window.quickAsk('${q.replace(/'/g,"\\'")}')"> ${q}</button>`).join('');
-};
-
-window.quickAsk = q => {
-  document.getElementById('ia-qrs').innerHTML='';
-  appendMsg('user',q); sendToAI(q);
-};
-window.sendIA = () => {
-  const inp=document.getElementById('ia-inp');
-  const msg=inp?inp.value.trim():'';
-  if(!msg) return;
-  inp.value='';
-  document.getElementById('ia-qrs').innerHTML='';
-  appendMsg('user',msg); sendToAI(msg);
-};
-
-const appendMsg = (role,text) => {
-  const el=document.getElementById('ia-msgs');
-  if(!el) return;
-  const div=document.createElement('div');
-  div.className='iam '+role;
-  div.innerHTML=`<div class="iamav">${role==='bot'?'🤖':'👤'}</div><div class="iabub">${text}</div>`;
-  el.appendChild(div); el.scrollTop=el.scrollHeight;
-};
-
-const sendToAI = async (userMsg) => {
-  const typing=document.createElement('div');
-  typing.className='iam bot'; typing.id='typing';
-  typing.innerHTML=`<div class="iamav">🤖</div><div class="iabub"><div class="tdots"><span></span><span></span><span></span></div></div>`;
-  document.getElementById('ia-msgs').appendChild(typing);
-  document.getElementById('ia-msgs').scrollTop=9999;
-
-  const td=today();
-  const doneCnt=S.habits.filter(h=>h.logs&&h.logs[td]).length;
-  const habInfo=S.habits.map(h=>`- ${h.emoji} ${h.name} (racha: ${getStreak(h)} días, hoy: ${h.logs&&h.logs[td]?'✅':'⬜'})`).join('\n');
-  const sys=`Eres FlowEX AI, coach motivador de hábitos para @${CUR_USER} (${S.name||''}). Español conciso, máximo 3 oraciones. Nivel ${S.level}, ${S.xp} XP. Hoy: ${doneCnt}/${S.habits.length} hábitos.\nHábitos:\n${habInfo}`;
-  iaHist.push({role:'user',content:userMsg});
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,system:sys,messages:iaHist.slice(-8)})
-    });
-    const data=await res.json();
-    document.getElementById('typing')?.remove();
-    const reply=data.content?.[0]?.text||'Intentá de nuevo.';
-    iaHist.push({role:'assistant',content:reply});
-    appendMsg('bot',reply);
-  } catch(e) {
-    document.getElementById('typing')?.remove();
-    const tips=['No rompas la cadena — cada ✅ construye tu identidad. 🔗','La consistencia vence a la intensidad. 10 min/día > 2h una vez. ⚡','Celebrá los pequeños logros. Cada marca es una victoria. 🏆'];
-    appendMsg('bot',tips[Math.floor(Math.random()*tips.length)]);
-  }
-  renderQRs(['¿Cómo mejorar mi racha?','Dame un tip','¿Qué hábito priorizar?','Motivame']);
-};
-
-// ── UI HELPERS ─────────────────────────────────────
-window.csh = (id,event) => {
-  if(event&&event.target!==document.getElementById(id)) return;
-  const el=document.getElementById(id);
-  if(el) el.classList.remove('open');
-};
-
-window.toast = (msg,type='info') => {
-  const tc=document.getElementById('tc');
-  if(!tc) return;
-  const t=document.createElement('div');
-  const cols={success:'var(--a3)',warn:'var(--a4)',error:'var(--a2)',info:'var(--a)'};
-  t.className='toast'; t.style.borderColor=cols[type]||'var(--b)';
-  t.textContent=msg; tc.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300);},2800);
-};
-
-window.confetti = () => {
-  const div=document.createElement('div');
-  div.className='confetti-wrap'; document.body.appendChild(div);
-  const cols=['#7c6dfa','#fa6d8f','#6dfac4','#fac46d','#60a5fa'];
-  for(let i=0;i<20;i++){
-    const p=document.createElement('div'); p.className='cf';
-    p.style.cssText=`left:${15+Math.random()*70}%;background:${cols[i%5]};animation-delay:${Math.random()*.4}s;animation-duration:${.9+Math.random()*.5}s;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    div.appendChild(p);
-  }
-  setTimeout(()=>div.remove(),1700);
-};
-
-// ── PWA + BOOT ─────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  if(!S.missionStartTime&&!S.sessionDone){const day=getDay(getTDid());if(day&&!day.rest){S.missionStartTime=new Date().toISOString();save();}}
+
+  updateHeader();renderWeekStrip();renderQL();renderDetail();updatePB();updateCompleteBtn();
+  _prevRankIdx = getRankIdx(); // set baseline after load
+  startTimer();updateNotifUI();initParticles();
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+
+// ══════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════
+function updateHeader(){
+  const r=getRank(),pct=getXpPct(),next=getXpNext();
+  ['hRL','sRL'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=r.l;el.className=(id==='hRL'?'sys-rank-letter ':'sl-v rv ')+r.cls;}});
+  const hrn=document.getElementById('hRN'),srn=document.getElementById('sRN');
+  if(hrn)hrn.textContent=r.name;if(srn)srn.textContent=`— ${r.name}`;
+  document.getElementById('hXF').style.width=pct+'%';
+  document.getElementById('hXN').textContent=`${S.xp} / ${next}`;
+  document.getElementById('sXP').textContent=`${S.xp} / ${next}`;
+  document.getElementById('sXF').style.width=pct+'%';
+}
+
+function renderWeekStrip(){
+  const strip=document.getElementById('weekStrip'),tid=getTDid();strip.innerHTML='';
+  DAYS.forEach(day=>{
+    const chip=document.createElement('div');
+    chip.className=`day-chip${day.id===tid?' today':''}${isCompletedToday(day.id)?' done':''}`;
+    chip.innerHTML=`<div class="day-chip-name">${day.name}</div><div class="day-chip-icon">${day.icon}</div><div class="day-chip-dot"></div>`;
+    strip.appendChild(chip);
   });
 }
 
-// Boot: check for saved session
-window.addEventListener('DOMContentLoaded', async () => {
-  await new Promise(r => setTimeout(r, 600)); // min splash time
-  const session = loadSession();
-  if (session && session.user && session.data) {
-    CUR_USER = session.user;
-    S = { ...S, ...session.data };
-    // Verify user still exists in Firestore
-    try {
-      const snap = await getDoc(userRef(CUR_USER));
-      if (snap.exists()) {
-        const remote = snap.data();
-        S = { ...S, ...remote }; delete S.pinHash; delete S.updatedAt;
-        saveSession();
-        hideSplash();
-        startApp();
-        return;
-      }
-    } catch(e) {
-      // Offline: use local cache
-      hideSplash();
-      startApp();
-      setSyncStatus('error');
-      return;
-    }
-  }
-  // No session — show auth
-  hideSplash();
-  document.getElementById('screen-auth').classList.add('active');
-  document.getElementById('screen-auth').style.display='flex';
-});
+let qExpanded=false;
+function toggleQE(){qExpanded=!qExpanded;renderQL();}
+function renderQL(){
+  const day=getDay(getTDid()),ql=document.getElementById('questList'),qt=document.getElementById('questToggle');
+  if(!ql)return;
+  if(!day||day.rest){ql.innerHTML=`<div style="padding:8px 0;font-family:var(--mono);font-size:11px;color:var(--muted2)">REST DAY — Recovery active</div>`;if(qt)qt.style.display='none';return;}
+  const all=getAllEx(day),show=qExpanded?all.length:4,shown=all.slice(0,show);
+  ql.innerHTML=shown.map(ex=>{
+    const key=`${day.id}__${ex.n}`,done=!!S.todayChecked[key];
+    return`<div class="quest-item${done?' done':''}" onclick="toggleEx('${key.replace(/'/g,"\\'")}',${ex.xp})"><div class="quest-chk">${done?'✓':''}</div><div class="quest-name">${ex.n}</div><div class="quest-det">${ex.d}</div><div class="quest-xp">+${ex.xp}</div></div>`;
+  }).join('');
+  if(qt){if(all.length>4){qt.style.display='block';qt.textContent=qExpanded?'▲ OCULTAR':'▼ VER TODOS';}else qt.style.display='none';}
+}
 
-const hideSplash = () => {
-  const splash=document.getElementById('splash');
-  if(splash){ splash.classList.add('hide'); setTimeout(()=>splash.remove(),500); }
-};
+let detOpen=false;
+function renderDetail(){
+  const day=getDay(getTDid()),sec=document.getElementById('detailSection');
+  if(!sec||!day||day.rest){if(sec)sec.innerHTML='';return;}
+  let body='';
+  day.sections.forEach(s=>{
+    body+=`<div class="sec-sep">${s.t}</div>`;
+    body+=s.ex.map(ex=>{const key=`${day.id}__${ex.n}`,done=!!S.todayChecked[key];return`<div class="ex-row${done?' done':''}" onclick="toggleEx('${key.replace(/'/g,"\\'")}',${ex.xp})"><div class="ex-chk">${done?'✓':''}</div><div class="ex-row-name">${ex.n}</div><div class="ex-row-det">${ex.d}</div><div class="ex-row-xp">+${ex.xp}</div></div>`;}).join('');
+  });
+  sec.innerHTML=`<div class="detail-toggle${detOpen?' open':''}" onclick="toggleDet()"><span>FULL EXERCISE LIST — ${day.type}</span><span class="toggle-arr">›</span></div><div class="detail-body${detOpen?' open':''}">${body}</div>`;
+}
+function toggleDet(){detOpen=!detOpen;renderDetail();}
+
+function toggleEx(key,xp){
+  if(S.sessionDone)return;
+  const was=!!S.todayChecked[key];S.todayChecked[key]=!was;
+  if(!was){S.xp+=xp;S.totalExercises++;toast(`+${xp} XP`,'⚡');SFX.check();}
+  else{S.xp=Math.max(0,S.xp-xp);S.totalExercises=Math.max(0,S.totalExercises-1);SFX.uncheck();}
+  checkRankUp();
+  save();updateHeader();renderQL();renderDetail();updateCompleteBtn();
+}
+
+function updateCompleteBtn(){
+  const btn=document.getElementById('completeBtn'),day=getDay(getTDid());
+  if(!btn)return;
+  if(!day||day.rest){btn.style.display='none';return;}
+  btn.style.display='block';
+  if(S.sessionDone){btn.textContent='[ SESSION COMPLETE ✓ ]';btn.className='complete-btn done';return;}
+  const all=getAllEx(day),done=all.filter(ex=>S.todayChecked[`${day.id}__${ex.n}`]).length;
+  const pct=all.length?Math.round((done/all.length)*100):0;
+  btn.textContent=`[ COMPLETE DAILY QUEST — ${pct}% ]`;btn.className='complete-btn';
+}
+
+function completeSession(){
+  if(S.sessionDone)return;
+  const day=getDay(getTDid());if(!day||day.rest)return;
+  const all=getAllEx(day);
+  let xp=0,cnt=0;
+  all.forEach(ex=>{if(S.todayChecked[`${day.id}__${ex.n}`]){xp+=ex.xp;cnt++;}});
+  const today=todayStr(),yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  if(S.lastCompleted===yest)S.streak++;else if(S.lastCompleted!==today)S.streak=1;
+  S.lastCompleted=today;S.totalSessions++;S.sessionDone=true;S.consecutiveFails=0;S.activePenalty=null;
+  S.history.unshift({date:new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}),rawDate:new Date().toISOString(),dayId:day.id,dayLabel:day.label,type:day.type,icon:day.icon,xp,exercises:cnt});
+  save();updateHeader();renderWeekStrip();renderQL();renderDetail();updatePB();updateCompleteBtn();
+  const r=getRank();
+  document.getElementById('ovR').textContent=r.l;document.getElementById('ovR').className=`ov-rank ${r.cls}`;
+  document.getElementById('ovS').textContent=`${cnt} exercises — ${day.label}`;
+  document.getElementById('ovX').textContent=`+${xp} XP`;
+  document.getElementById('ovSt').textContent=`🔥 STREAK: ${S.streak} DAYS`;
+  document.getElementById('overlay').classList.add('show');
+  SFX.questComplete();
+  notify('✅ QUEST COMPLETE',`Misión completada. +${xp} XP ganados.`);
+}
+
+function switchView(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');btn.classList.add('active');
+  if(id==='stats')renderStats();if(id==='profile')renderProfile();
+}
+
+function renderStats(){
+  document.getElementById('stStreak').textContent=S.streak;
+  document.getElementById('stSess').textContent=S.totalSessions;
+  document.getElementById('stXP').textContent=S.xp;
+  document.getElementById('stEx').textContent=S.totalExercises;
+  document.getElementById('stFails').textContent=S.consecutiveFails||0;
+  document.getElementById('stPen').textContent=S.totalPenalties||0;
+  document.getElementById('stWeek').textContent=S.startDate?Math.max(1,Math.ceil((Date.now()-new Date(S.startDate).getTime())/(7*86400000))):1;
+  const ri=getRankIdx(),rr=document.getElementById('rankRow');rr.innerHTML='';
+  RANKS.forEach((rk,i)=>{
+    if(i>0){const l=document.createElement('div');l.className=`rank-line${i<=ri?' done':''}`;rr.appendChild(l);}
+    const nd=document.createElement('div');nd.className=`rank-node${i<ri?' done':i===ri?' curr':''}`;
+    nd.innerHTML=`<div class="rank-node-c ${rk.cls}">${rk.l}</div><div class="rank-node-lbl">sem ${i+1}</div>`;rr.appendChild(nd);
+  });
+  const hl=document.getElementById('histList');
+  if(!S.history.length){hl.innerHTML=`<div class="empty-block"><div style="font-size:40px">📋</div><div class="empty-lbl">NO MISSIONS YET</div></div>`;return;}
+  hl.innerHTML=S.history.slice(0,15).map(h=>`<div class="hist-item"><div class="hist-icon">${h.icon}</div><div class="hist-info"><div class="hist-day">${h.dayLabel} — ${h.type}</div><div class="hist-date">${h.date} · ${h.exercises||0} exercises</div></div><div class="hist-xp">+${h.xp} XP</div></div>`).join('');
+}
+
+function renderProfile(){
+  const r=getRank();
+  const pb=document.getElementById('prBig');if(pb){pb.textContent=r.l;pb.className=`prof-rank-big ${r.cls}`;}
+  const pn=document.getElementById('prName');if(pn)pn.textContent=`RANGO ${r.l} — ${r.name}`;
+  const ps=document.getElementById('prStart');if(ps&&S.startDate)ps.textContent=new Date(S.startDate+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+  // Hunter name
+  const hn=document.getElementById('profHunterName');
+  if(hn)hn.textContent=S.hunterName||'CAZADOR DEKU';
+  updateNotifUI();
+}
+
+function toggleMute(){
+  const on=SFX.toggle();
+  const btn=document.getElementById('muteBtn');
+  if(btn)btn.textContent=on?'🔊':'🔇';
+  toast(on?'Sonido activado':'Sonido silenciado', on?'🔊':'🔇');
+}
+
+function resetData(){if(!confirm('⚠ Reset ALL progress?'))return;localStorage.removeItem(SKEY);if(timerInt)clearInterval(timerInt);location.reload();}
+
+let toastT;
+function toast(msg,icon='⚡'){
+  clearTimeout(toastT);
+  document.getElementById('toastM').textContent=msg;document.getElementById('toastI').textContent=icon;
+  const el=document.getElementById('toast');el.classList.add('show');
+  toastT=setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+function initParticles(){
+  const c=document.getElementById('particles'),ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  const pts=Array.from({length:30},()=>({x:Math.random()*c.width,y:Math.random()*c.height,sz:Math.random()*1.2+0.2,vy:-(Math.random()*0.3+0.08),vx:(Math.random()-0.5)*0.15,a:Math.random()*0.2+0.05,col:Math.random()>0.6?'#00d4ff':Math.random()>0.5?'#1a6fff':'#c8960c'}));
+  (function draw(){ctx.clearRect(0,0,c.width,c.height);pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);ctx.fillStyle=p.col;ctx.globalAlpha=p.a;ctx.fill();p.y+=p.vy;p.x+=p.vx;if(p.y<0){p.y=c.height;p.x=Math.random()*c.width;}});ctx.globalAlpha=1;requestAnimationFrame(draw);})();
+}
+
+init();
+
+// Redirect to intro if not onboarded
+if (!localStorage.getItem('deku_onboarded')) {
+  window.location.replace('./intro.html');
+}
 </script>
 </body>
 </html>
+
 //  END
