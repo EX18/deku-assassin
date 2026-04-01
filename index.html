@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SYSTEM">
@@ -23,7 +23,16 @@
   --mono:'Share Tech Mono',monospace; --orb:'Orbitron',sans-serif; --raj:'Rajdhani',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--raj);overflow:hidden;user-select:none;}
+html,body{height:100%;background:var(--bg);color:var(--white);font-family:var(--raj);overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
+body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:40px 40px;}
+@media (max-width:480px){
+  :root{--safe-top:max(env(safe-area-inset-top,44px),20px);--safe-bot:max(env(safe-area-inset-bottom,20px),16px);}
+  main{padding-bottom:70px !important;}
+  .system-ui{margin:8px !important;}
+  .quest-item,.ex-row{padding:5px 0 !important;}
+  .nav-btn{padding:6px 2px !important;}
+}
 body::after{content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.04) 3px,rgba(0,0,0,0.04) 4px);}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:40px 40px;}
 canvas{position:fixed;inset:0;z-index:1;pointer-events:none;}
@@ -281,6 +290,12 @@ nav{flex-shrink:0;background:rgba(0,3,8,0.98);border-top:1px solid var(--border2
         <span style="font-size:20px">🔔</span>
         <div class="notif-prompt-text">Activá notificaciones del sistema — te alertamos cuando queden 3h y 30 min para el deadline</div>
         <button class="notif-prompt-btn" onclick="reqNotif()">ACTIVAR</button>
+      </div>
+
+      <!-- PAST DAYS SECTION -->
+      <div id="pastDaysSection" style="display:none;margin:12px;border:1px solid rgba(255,140,45,0.3);background:rgba(255,100,0,0.04);padding:12px;border-radius:4px;">
+        <div style="font-family:var(--mono);font-size:10px;letter-spacing:0.15em;color:#ff8c2d;margin-bottom:10px;text-transform:uppercase;">⏮ PENDIENTES DEL PASADO</div>
+        <div id="pastDaysList"></div>
       </div>
 
       <div class="system-ui sp" id="systemPanel">
@@ -705,7 +720,7 @@ function init(){
   }
   if(!S.missionStartTime&&!S.sessionDone){const day=getDay(getTDid());if(day&&!day.rest){S.missionStartTime=new Date().toISOString();save();}}
 
-  updateHeader();renderWeekStrip();renderQL();renderDetail();updatePB();updateCompleteBtn();
+  updateHeader();renderWeekStrip();renderPastDays();renderQL();renderDetail();updatePB();updateCompleteBtn();
   _prevRankIdx = getRankIdx(); // set baseline after load
   startTimer();updateNotifUI();initParticles();
   if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
@@ -733,6 +748,33 @@ function renderWeekStrip(){
     chip.innerHTML=`<div class="day-chip-name">${day.name}</div><div class="day-chip-icon">${day.icon}</div><div class="day-chip-dot"></div>`;
     strip.appendChild(chip);
   });
+}
+
+function renderPastDays(){
+  const sec=document.getElementById('pastDaysSection'),list=document.getElementById('pastDaysList');
+  if(!sec||!list)return;
+  const past=(S.pastDays||[]).filter(d=>!d.completed);
+  if(!past.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  list.innerHTML=past.map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(255,100,0,0.06);margin-bottom:6px;border-left:3px solid #ff8c2d;border-radius:2px;cursor:pointer;" onclick="completePastDay('${d.dayId}',${d.xp})"><div style="font-size:18px;">${d.icon}</div><div style="flex:1;"><div style="font-family:var(--mono);font-size:11px;color:var(--white);">${d.dayLabel}</div><div style="font-family:var(--mono);font-size:9px;color:var(--muted2);">${d.date}</div></div><div style="font-family:var(--mono);font-size:11px;color:#ff8c2d;text-align:right;">+${d.xp} XP<br><span style="font-size:9px;">TAP</span></div></div>`).join('');
+}
+
+function completePastDay(dayId,xp){
+  const day=getDay(dayId);
+  if(!day)return;
+  const d=S.pastDays.find(pd=>pd.dayId===dayId);
+  if(!d)return;
+  d.completed=true;
+  S.xp+=xp;
+  S.totalExercises+=d.exercises;
+  S.totalSessions++;
+  S.history.unshift({...d,completed:true});
+  if(!S.lastCompleted||new Date(S.lastCompleted).toDateString()!==new Date().toDateString()){
+    const yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
+    if(S.lastCompleted===yest)S.streak++;else S.streak=1;
+  }
+  S.lastCompleted=todayStr();
+  save();checkRankUp();updateHeader();renderPastDays();renderStats();SFX.questComplete();toast(`+${xp} XP — ${d.dayLabel} completado`,'✅');
 }
 
 let qExpanded=false;
