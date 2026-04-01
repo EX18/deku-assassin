@@ -729,7 +729,7 @@ function updateConfirmBtn() {
 }
 
 // ══════════════════════════════════════
-//  CONFIRM NAME — Auto-set today's date
+//  CONFIRM NAME — Con datos de días previos
 // ══════════════════════════════════════
 const DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -738,27 +738,45 @@ function confirmName() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) return;
 
-  // Use today's date as start date
-  const today = new Date();
-  const startStr = today.toISOString().split('T')[0];
-  const formatted = `${String(today.getDate()).padStart(2,'0')} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
+  // Ejercicios de lunes y martes
+  const lunesEjercicios = ['Trote suave', 'Movilidad hombros', 'Flexiones normales', 'Pike push ups', 'Flexiones cerradas', 'Press bloque (sobre cabeza)', 'Plancha', 'Farmer Walk con bloques'];
+  const martesEjercicios = ['Burpees', 'Mountain climbers', 'Sentadillas', 'Plancha'];
+  const lunesXP = 5 + 5 + 10 + 12 + 10 + 12 + 10 + 15;
+  const martesXP = 15 + 12 + 10 + 10;
+  const totalXP = lunesXP + martesXP;
 
-  // Save to state
+  // Estado con lunes 30 y martes 31 de marzo completados
   const state = {
-    xp:0, streak:0, lastCompleted:null,
-    totalSessions:0, totalExercises:0, totalPenalties:0,
-    startDate: startStr,
+    xp: totalXP,
+    streak: 2,
+    lastCompleted: '2026-03-31',
+    totalSessions: 2,
+    totalExercises: lunesEjercicios.length + martesEjercicios.length,
+    totalPenalties: 0,
+    startDate: '2026-03-30',
     hunterName: name.toUpperCase(),
-    history:[], todayChecked:{},
-    currentDay:null, sessionDone:false,
-    missionStartTime:null, consecutiveFails:0,
-    activePenalty:null, penaltyDone:false,
+    history: [
+      {date:'31 mar 2026', rawDate:'2026-03-31T12:00:00.000Z', dayId:'martes', dayLabel:'MARTES', type:'HIIT', icon:'🔥', xp:martesXP, exercises:martesEjercicios.length},
+      {date:'30 mar 2026', rawDate:'2026-03-30T12:00:00.000Z', dayId:'lunes', dayLabel:'LUNES', type:'UPPER BODY', icon:'💪', xp:lunesXP, exercises:lunesEjercicios.length}
+    ],
+    todayChecked: {},
+    currentDay: null,
+    sessionDone: false,
+    missionStartTime: null,
+    consecutiveFails: 0,
+    activePenalty: null,
+    penaltyDone: false,
+    notifGranted: false
   };
+
   try {
     localStorage.setItem(SKEY, JSON.stringify(state));
     localStorage.setItem(OKEY, '1');
   } catch(e){}
 
+  // Formato para pantalla de despertar
+  const formatted = `30-31 mar 2026`;
+  
   // Show awakening screen
   document.getElementById('awName').textContent = `HUNTER ${name.toUpperCase()}`;
   document.getElementById('awDate').textContent = formatted;
