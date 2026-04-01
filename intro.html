@@ -184,14 +184,14 @@ canvas {
 @keyframes cur { 0%,100%{opacity:1} 50%{opacity:0} }
 
 /* ══════════════════════════════
-   SCREEN 3 — DATE SELECTION
+   SCREEN 3 — NAME INPUT
 ══════════════════════════════ */
-#datescreen {
+#namescreen {
   justify-content: center;
   gap: 0;
 }
 
-.date-panel {
+.name-panel {
   width: 100%; max-width: 340px;
   border: 1px solid rgba(0,212,255,0.3);
   background: rgba(0,5,20,0.9);
@@ -403,9 +403,9 @@ canvas {
     <div class="term-lines" id="termLines"></div>
   </div>
 
-  <!-- SCREEN 3: DATE SELECTION -->
-  <div class="screen" id="datescreen">
-    <div class="date-panel">
+  <!-- SCREEN 3: NAME INPUT -->
+  <div class="screen" id="namescreen">
+    <div class="name-panel">
       <div class="corner tl"></div><div class="corner tr"></div>
       <div class="corner bl"></div><div class="corner br"></div>
 
@@ -421,39 +421,10 @@ canvas {
         </div>
         <div class="dp-name-row">
           <div class="dp-name-label">HUNTER ›</div>
-          <input class="dp-name-input" id="nameInput" type="text" maxlength="20" placeholder="tu nombre..." autocomplete="off" autocorrect="off" spellcheck="false">
+          <input class="dp-name-input" id="nameInput" type="text" maxlength="20" placeholder="tu nombre..." autocomplete="off" autocorrect="off" spellcheck="false" onkeyup="updateConfirmBtn()" oninput="updateConfirmBtn()">
         </div>
 
-        <div class="dp-date-label">FECHA DE INICIO DEL PROTOCOLO</div>
-
-        <div class="dp-wheels">
-          <div class="wheel-wrap">
-            <div class="wheel-label">DÍA</div>
-            <div class="wheel" id="wheelDay">
-              <div class="wheel-center-line"></div>
-              <div class="wheel-inner" id="innerDay"></div>
-            </div>
-          </div>
-          <div class="wheel-wrap">
-            <div class="wheel-label">MES</div>
-            <div class="wheel" id="wheelMonth">
-              <div class="wheel-center-line"></div>
-              <div class="wheel-inner" id="innerMonth"></div>
-            </div>
-          </div>
-          <div class="wheel-wrap">
-            <div class="wheel-label">AÑO</div>
-            <div class="wheel" id="wheelYear">
-              <div class="wheel-center-line"></div>
-              <div class="wheel-inner" id="innerYear"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="dp-selected-date" id="selectedDate">—</div>
-        <div class="dp-week-label" id="weekLabel"></div>
-
-        <button class="dp-confirm" id="confirmBtn" onclick="confirmDate()" disabled>
+        <button class="dp-confirm" id="confirmBtn" onclick="confirmName()" disabled>
           [ INICIAR PROTOCOLO ]
         </button>
       </div>
@@ -693,8 +664,8 @@ function runTerminal() {
 
   function nextLine() {
     if (lineIdx >= LINES.length) {
-      // All lines done — transition to date screen
-      setTimeout(() => { SFX.transition(); hideScreen('terminal'); showScreen('datescreen', 300); }, 800);
+      // All lines done — transition to name screen
+      setTimeout(() => { SFX.transition(); hideScreen('terminal'); showScreen('namescreen', 300); }, 800);
       return;
     }
 
@@ -747,156 +718,30 @@ function runTerminal() {
 }
 
 // ══════════════════════════════════════
-//  WHEEL PICKER
+//  UPDATE CONFIRM BTN
 // ══════════════════════════════════════
-const MONTHS = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
-const ITEM_H = 36;
-
-let selectedDay = new Date().getDate();
-let selectedMonth = new Date().getMonth(); // 0-based
-let selectedYear = new Date().getFullYear();
-
-function daysInMonth(m, y) {
-  return new Date(y, m+1, 0).getDate();
+function updateConfirmBtn() {
+  const name = document.getElementById('nameInput').value.trim();
+  const btn = document.getElementById('confirmBtn');
+  if (btn) {
+    btn.disabled = !name;
+  }
 }
 
-function buildWheel(innerId, items, selectedIdx) {
-  const inner = document.getElementById(innerId);
-  inner.innerHTML = '';
-
-  // Padding items for scroll feel
-  const pad = 1;
-  for (let i = 0; i < pad; i++) {
-    const div = document.createElement('div');
-    div.className = 'wheel-item';
-    inner.appendChild(div);
-  }
-  items.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = `wheel-item${i === selectedIdx ? ' selected' : ''}`;
-    div.textContent = typeof item === 'number' ? String(item).padStart(2,'0') : item;
-    inner.appendChild(div);
-  });
-  for (let i = 0; i < pad; i++) {
-    const div = document.createElement('div');
-    div.className = 'wheel-item';
-    inner.appendChild(div);
-  }
-
-  inner.style.transform = `translateY(${-selectedIdx * ITEM_H}px)`;
-}
-
-function setupWheel(wheelId, innerId, items, getSelected, setSelected) {
-  const wheel = document.getElementById(wheelId);
-  const inner = document.getElementById(innerId);
-  let startY = 0, startOffset = 0, currentOffset = 0, isDragging = false;
-
-  function getOffset() {
-    const t = inner.style.transform;
-    const m = t.match(/translateY\((-?\d+\.?\d*)px\)/);
-    return m ? parseFloat(m[1]) : 0;
-  }
-
-  function snapTo(idx) {
-    const clamped = Math.max(0, Math.min(items.length-1, idx));
-    inner.style.transition = 'transform 0.2s cubic-bezier(0.25,0.46,0.45,0.94)';
-    inner.style.transform = `translateY(${-clamped * ITEM_H}px)`;
-    // Update selected
-    inner.querySelectorAll('.wheel-item').forEach((el, i) => {
-      // offset by 1 for padding
-      el.classList.toggle('selected', i-1 === clamped);
-    });
-    setSelected(clamped);
-    updateDateDisplay();
-  }
-
-  function onStart(y) {
-    isDragging = true;
-    startY = y;
-    startOffset = getOffset();
-    inner.style.transition = 'none';
-  }
-
-  function onMove(y) {
-    if (!isDragging) return;
-    const delta = y - startY;
-    currentOffset = startOffset + delta;
-    inner.style.transform = `translateY(${currentOffset}px)`;
-  }
-
-  function onEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    const rawIdx = Math.round(-currentOffset / ITEM_H);
-    snapTo(rawIdx);
-  }
-
-  // Touch
-  wheel.addEventListener('touchstart', e => onStart(e.touches[0].clientY), {passive:true});
-  wheel.addEventListener('touchmove',  e => { e.preventDefault(); onMove(e.touches[0].clientY); }, {passive:false});
-  wheel.addEventListener('touchend',   () => onEnd());
-
-  // Mouse
-  wheel.addEventListener('mousedown', e => { onStart(e.clientY); e.preventDefault(); });
-  window.addEventListener('mousemove', e => { if(isDragging) onMove(e.clientY); });
-  window.addEventListener('mouseup',   () => { if(isDragging) onEnd(); });
-}
-
-function initWheels() {
-  const today = new Date();
-  selectedDay   = today.getDate();
-  selectedMonth = today.getMonth();
-  selectedYear  = today.getFullYear();
-
-  const years = [selectedYear, selectedYear+1];
-
-  buildWheel('innerDay',   Array.from({length: daysInMonth(selectedMonth, selectedYear)}, (_,i)=>i+1), selectedDay-1);
-  buildWheel('innerMonth', MONTHS, selectedMonth);
-  buildWheel('innerYear',  years, 0);
-
-  setupWheel('wheelDay',   'innerDay',   Array.from({length: daysInMonth(selectedMonth, selectedYear)}, (_,i)=>i+1), ()=>selectedDay-1,   v=>{ selectedDay=v+1; });
-  setupWheel('wheelMonth', 'innerMonth', MONTHS, ()=>selectedMonth, v=>{ selectedMonth=v; rebuildDayWheel(); });
-  setupWheel('wheelYear',  'innerYear',  years,  ()=>0,             v=>{ selectedYear=years[v]; rebuildDayWheel(); });
-
-  updateDateDisplay();
-}
-
-function rebuildDayWheel() {
-  const maxDay = daysInMonth(selectedMonth, selectedYear);
-  if (selectedDay > maxDay) selectedDay = maxDay;
-  const days = Array.from({length: maxDay}, (_,i)=>i+1);
-  buildWheel('innerDay', days, selectedDay-1);
-  setupWheel('wheelDay', 'innerDay', days, ()=>selectedDay-1, v=>{ selectedDay=v+1; updateDateDisplay(); });
-}
-
+// ══════════════════════════════════════
+//  CONFIRM NAME — Auto-set today's date
+// ══════════════════════════════════════
 const DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-function updateDateDisplay() {
-  const date = new Date(selectedYear, selectedMonth, selectedDay);
-  const dname = DAY_NAMES[date.getDay()];
-  const formatted = `${String(selectedDay).padStart(2,'0')} ${MONTHS[selectedMonth]} ${selectedYear}`;
-  document.getElementById('selectedDate').textContent = formatted;
-  document.getElementById('weekLabel').textContent = `${dname.toUpperCase()} — semana de inicio`;
-
-  const nameVal = document.getElementById('nameInput').value.trim();
-  document.getElementById('confirmBtn').disabled = nameVal.length === 0;
-}
-
-// Name input validation
-document.getElementById('nameInput').addEventListener('input', updateDateDisplay);
-document.getElementById('nameInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') e.target.blur();
-});
-
-// ══════════════════════════════════════
-//  CONFIRM DATE
-// ══════════════════════════════════════
-function confirmDate() {
+function confirmName() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) return;
 
-  const startDate = new Date(selectedYear, selectedMonth, selectedDay);
-  const startStr  = startDate.toISOString().split('T')[0];
+  // Use today's date as start date
+  const today = new Date();
+  const startStr = today.toISOString().split('T')[0];
+  const formatted = `${String(today.getDate()).padStart(2,'0')} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
 
   // Save to state
   const state = {
@@ -916,9 +761,9 @@ function confirmDate() {
 
   // Show awakening screen
   document.getElementById('awName').textContent = `HUNTER ${name.toUpperCase()}`;
-  document.getElementById('awDate').textContent = `${String(selectedDay).padStart(2,'0')} ${MONTHS[selectedMonth]} ${selectedYear}`;
+  document.getElementById('awDate').textContent = formatted;
 
-  hideScreen('datescreen');
+  hideScreen('namescreen');
   SFX.confirm();
   showScreen('awakening', 300);
 }
@@ -936,8 +781,12 @@ function enterSystem() {
 //  START
 // ══════════════════════════════════════
 window.addEventListener('load', () => {
-  initWheels();
   runBoot();
+  // Focus on input when namescreen loads
+  setTimeout(() => {
+    const inp = document.getElementById('nameInput');
+    if (inp) inp.focus();
+  }, 2000);
 });
 
 // Play rankUp sound when awakening screen becomes active

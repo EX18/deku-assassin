@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Preloading...</title>
+</head>
+<body>
+  <p>Configurando datos...</p>
+  <script>
+    const MONTH = 4; // Abril
+    const SKEY = 'deku_v3';
+    const OKEY = 'deku_onboarded';
+
+    // Datos de ejercicios para los dos días
+    const lunesEjercicios = [
+      'Trote suave', 'Movilidad hombros',
+      'Flexiones normales', 'Pike push ups', 'Flexiones cerradas', 'Press bloque (sobre cabeza)', 'Plancha',
+      'Farmer Walk con bloques'
+    ];
+    const martesEjercicios = [
+      'Burpees', 'Mountain climbers', 'Sentadillas', 'Plancha'
+    ];
+
+    const lunesXP = 5 + 5 + 10 + 12 + 10 + 12 + 10 + 15; // 79
+    const martesXP = 15 + 12 + 10 + 10; // 47
+    const totalXP = lunesXP + martesXP; // 126
+
+    // Estado inicial con los dos días completados
+    const today = new Date();
+    const state = {
+      xp: totalXP,
+      streak: 2,
+      lastCompleted: '2026-04-28',
+      totalSessions: 2,
+      totalExercises: lunesEjercicios.length + martesEjercicios.length, // 12
+      totalPenalties: 0,
+      startDate: '2026-04-27',
+      hunterName: 'DEKU',
+      history: [
+        {
+          date: '28 abr 2026',
+          rawDate: new Date('2026-04-28T12:00:00').toISOString(),
+          dayId: 'martes',
+          dayLabel: 'MARTES',
+          type: 'HIIT',
+          icon: '🔥',
+          xp: martesXP,
+          exercises: martesEjercicios.length
+        },
+        {
+          date: '27 abr 2026',
+          rawDate: new Date('2026-04-27T12:00:00').toISOString(),
+          dayId: 'lunes',
+          dayLabel: 'LUNES',
+          type: 'UPPER BODY',
+          icon: '💪',
+          xp: lunesXP,
+          exercises: lunesEjercicios.length
+        }
+      ],
+      todayChecked: {},
+      currentDay: new Date().toISOString().split('T')[0],
+      sessionDone: false,
+      missionStartTime: new Date().toISOString(),
+      consecutiveFails: 0,
+      activePenalty: null,
+      penaltyDone: false,
+      notifGranted: false
+    };
+
+    try {
+      localStorage.setItem(SKEY, JSON.stringify(state));
+      localStorage.setItem(OKEY, '1');
+      console.log('✓ Datos precargados correctamente');
+      console.log('- Lunes completado: 79 XP');
+      console.log('- Martes completado: 47 XP');
+      console.log('- XP Total: 126');
+      console.log('- Racha: 2 días');
+    } catch(e) {
+      console.error('Error al guardar datos:', e);
+    }
+
+    // Redirigir a index.html después de 1 segundo
+    setTimeout(() => {
+      window.location.replace('./index.html');
+    }, 1000);
+  </script>
+</body>
+</html>
