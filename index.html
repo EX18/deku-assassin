@@ -9,17 +9,6 @@
 <meta name="theme-color" content="#000308">
 <title>ASSASSIN PROTOCOL — SYSTEM</title>
 <link rel="manifest" href="manifest.json">
-<<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SYSTEM">
-<meta name="theme-color" content="#000308">
-<title>ASSASSIN PROTOCOL — SYSTEM</title>
-<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Firebase SDK -->
 <script type="module">
@@ -52,6 +41,10 @@
     localStorage.setItem('deku_device_id', deviceId);
   }
   window._deviceId = deviceId;
+
+  // Fuerza ruta segura para tu usuario específico
+  const FIRESTORE_USER_ID = 'Nulvec';
+  window._firestoreUserId = FIRESTORE_USER_ID;
 
   window._fbReady = true;
   // Signal the app that Firebase is ready
@@ -602,7 +595,8 @@ async function fbSave() {
   _saving = true;
   setSyncing();
   try {
-    const ref = window._fsDoc(window._db, 'users', window._deviceId);
+    const refUserId = window._firestoreUserId || window._deviceId;
+    const ref = window._fsDoc(window._db, 'users', refUserId);
     await window._fsSetDoc(ref, S);
     setSynced();
   } catch(e) {
@@ -619,7 +613,8 @@ async function fbSave() {
 async function fbLoad() {
   if (!window._db || !window._deviceId) return false;
   try {
-    const ref = window._fsDoc(window._db, 'users', window._deviceId);
+    const refUserId = window._firestoreUserId || window._deviceId;
+    const ref = window._fsDoc(window._db, 'users', refUserId);
     const snap = await window._fsGetDoc(ref);
     if (snap.exists()) {
       const data = snap.data();
