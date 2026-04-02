@@ -571,6 +571,7 @@ let S = {
   consecutiveFails: 0,
   activePenalty: null,
   penaltyDone: false,
+  notificationStages: {started:false, h12: false, h6: false, h3: false, h1: false, m30: false},
   missionStartTime: null,
   hunterName: 'CAZADOR DEKU',
   _seeded: false,
@@ -646,6 +647,7 @@ function migrateState() {
   if (!S.checkedByDay) S.checkedByDay = {};
   if (!S.completedDays) S.completedDays = {};
   if (!S.penaltyDays) S.penaltyDays = {};
+  if (!S.notificationStages) S.notificationStages = {started:false,h12:false,h6:false,h3:false,h1:false,m30:false};
   // Remove legacy field
   delete S.currentDay;
   delete S.sessionDone;
@@ -772,14 +774,35 @@ function tick(){
   if(isTodayDone()){tv.textContent='COMPLETE';tv.className='timer-val ok';if(tf){tf.style.width='100%';tf.style.background='var(--green)';}return;}
   const rem=getLeft();
   if(rem===null){tv.textContent='--:--:--';tv.className='timer-val';return;}
+  // Notificaciones de progreso en función del tiempo restante
+  if(rem<=600000 && !S.notificationStages.m10){ S.notificationStages.m10=true; notify('🚨 10 min restantes','¡Última oportunidad! Hazlo YA y evita penalización.'); showMotivationOverlay('QUIERE SER ERESLO. VAS A LUCHAR HASTA EL FINAL.'); SFX.penalty(); }
+  if(rem<=1800000 && !S.notificationStages.m30){ S.notificationStages.m30=true; notify('⏳ 30 min restantes','Apurate: te quedan 30 minutos para completar la misión.'); showMotivationOverlay('_TRABAJA AHORA O TE QUEDAS ATRÁS_'); }
+  if(rem<=3600000 && !S.notificationStages.h1){ S.notificationStages.h1=true; notify('⏳ 1 hora restante','No aflojes: falta 1 hora para deadline del día.'); }
+  if(rem<=10800000 && !S.notificationStages.h3){ S.notificationStages.h3=true; notify('⚠️ 3 horas restantes','Ya pasaron 9 horas, quedan 3 horas para completar.'); }
+  if(rem<=21600000 && !S.notificationStages.h6){ S.notificationStages.h6=true; notify('🕒 6 horas restantes','Mitad del tiempo alcanzada. Mantén el ritmo.'); }
+  if(rem<=43200000 && !S.notificationStages.h12){ S.notificationStages.h12=true; notify('🏁 ¡Comenzá ahora!','Tenés 12 horas para completar la misión.'); }
+
   if(rem<=0){
     tv.textContent='00:00:00';tv.className='timer-val danger';
     if(tf){tf.style.width='0%';tf.style.background='var(--red)';}
     if(!S.activePenalty&&!S.penaltyDone){
+      const xpLoss = 80;
+      const oldXp = S.xp;
+      S.xp = Math.max(0, S.xp - xpLoss);
+      S.history.unshift({
+        date:new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}),
+        rawDate:new Date().toISOString(),
+        dayId:getTDid(),
+        dayLabel:'CASTIGO ASIGNADO',
+        type:'PENALTY ACTIVADA',
+        icon:'💀',
+        xp:-xpLoss,
+        exercises:0,
+      });
       S.consecutiveFails=(S.consecutiveFails||0)+1;
       assignPenalty(S.consecutiveFails);
       fbSave();showPO();updatePB();renderQL();
-      notify('💀 PENALTY QUEST','No completaste la misión. Castigo activado.');
+      notify('💀 PENALTY QUEST','No completaste la misión. Se descontaron '+xpLoss+' XP.');
     }
     return;
   }
@@ -815,6 +838,22 @@ function showPO(){
   SFX.penalty();
 }
 function acceptPenalty(){ document.getElementById('penaltyOverlay').classList.remove('show'); toast('Castigo pendiente — completalo hoy','💀'); }
+
+function showMotivationOverlay(message){
+  const ov = document.getElementById('overlay');
+  if(!ov) return;
+  const ovTitle = ov.querySelector('.ov-title');
+  const ovSub = ov.querySelector('.ov-sub');
+  const ovXp = ov.querySelector('#ovX');
+  const ovRank = ov.querySelector('#ovR');
+  if(ovTitle) ovTitle.textContent = '🔥 ¡ALERTA DE TIEMPO!';
+  if(ovSub) ovSub.textContent = message;
+  if(ovXp) ovXp.textContent = '+0 XP';
+  if(ovRank) ovRank.textContent = '⏱';
+  ov.classList.add('show');
+  setTimeout(() => ov.classList.remove('show'), 7000);
+}
+
 function completePenalty(){
   const tid=getTDid();
   S.penaltyDone=true;
@@ -859,7 +898,11 @@ async function reqNotif(){
   if(!('Notification'in window)){toast('No soportado en este navegador','⚠️');return;}
   const p=await Notification.requestPermission();
   S.notifGranted=(p==='granted'); fbSave(); updateNotifUI();
-  if(p==='granted'){toast('Notificaciones activadas ✓','🔔');schedNotifs();}
+  if(p==='granted'){
+    toast('Notificaciones activadas ✓','🔔');
+    schedNotifs();
+    scheduleDailyPushNotifications();
+  }
   else toast('Permiso denegado — activalo en Ajustes','⚠️');
 }
 function updateNotifUI(){
@@ -880,6 +923,28 @@ function schedNotifs(){
   const w=start+9*3600000-Date.now(),d=start+11.5*3600000-Date.now();
   if(w>0)setTimeout(()=>notify('⚠️ ASSASSIN PROTOCOL','Te quedan 3 horas para completar la misión.'),w);
   if(d>0)setTimeout(()=>notify('💀 ÚLTIMA ADVERTENCIA','30 minutos para completar o recibirás castigo.'),d);
+}
+
+let dailyPushLastHourNotified = null;
+function scheduleDailyPushNotifications(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  // Comprueba cada minuto si es 6:00, 12:00, 18:00
+  setInterval(()=>{
+    const now = new Date();
+    const h = now.getHours();
+    const m = now.getMinutes();
+    if((h===6||h===12||h===18) && m===0 && dailyPushLastHourNotified !== h){
+      dailyPushLastHourNotified = h;
+      let msg;
+      if(h===6) msg='🌅 Buenos días, ¡es hora de activar tu misión de hoy!';
+      else if(h===12) msg='☀️ Mediodía: rompé con un entrenamiento rápido ahora.';
+      else msg='🌙 Tarde: completá tu objetivo antes del cierre de la jornada.';
+      notify('⏰ RECORDATORIO DIARIO', msg);
+      showMotivationOverlay('¡VAMOS! En 24 horas esta tarea puede ser tuya.');
+      SFX.check();
+    }
+    if(m!==0) dailyPushLastHourNotified = null;
+  }, 60000);
 }
 
 // ══════════════════════════════════════
@@ -944,6 +1009,13 @@ async function init() {
   const todayDay = getDay(getTDid());
   if (todayDay && !todayDay.rest && !S.missionStartTime && !isTodayDone()) {
     S.missionStartTime = new Date().toISOString();
+  }
+  if (S.missionStartTime && !S.notificationStages.started) {
+    S.notificationStages.started = true;
+    notify('🔥 ¡A ENTRENAR!', 'Tu sesión empezó. ¡No pares ahora mismo!');
+  }
+  if(Notification.permission==='granted'){
+    scheduleDailyPushNotifications();
   }
   // Reset missionStartTime if today is done (we don't need the timer)
   if (isTodayDone()) {
